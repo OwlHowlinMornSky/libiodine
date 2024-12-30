@@ -5,7 +5,7 @@ pub type Result<T> = std::result::Result<T, CaesiumError>;
 #[derive(Debug, Clone)]
 pub struct CaesiumError {
     pub message: String,
-    pub code: u32,
+    pub code: u64,
 }
 
 impl fmt::Display for CaesiumError {
