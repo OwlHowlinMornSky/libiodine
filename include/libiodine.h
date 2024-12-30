@@ -1,4 +1,4 @@
-#ifndef LIB_CAESIUM_IODIDE_H
+﻿#ifndef LIB_CAESIUM_IODIDE_H
 #define LIB_CAESIUM_IODIDE_H
 
 #ifdef __cplusplus
@@ -20,7 +20,7 @@ typedef enum CSI_SupportedFileTypes {
 
 typedef struct CSI_Result {
     bool success;
-    uint32_t code;
+    uint64_t code;
     char *error_message;
 } CSI_Result;
 
