@@ -98,6 +98,16 @@ pub fn resize_image(image: DynamicImage, width: u32, height: u32) -> DynamicImag
     image.resize_exact(dimensions.0, dimensions.1, FilterType::Lanczos3)
 }
 
+pub fn resize_image_n(image: DynamicImage, allow_magnify: bool, width: u32, height: u32) -> DynamicImage {
+    let dimensions = compute_dimensions(image.width(), image.height(), width, height);
+    if allow_magnify || (image.width() > dimensions.0 || image.height() > dimensions.1) {
+        image.resize_exact(dimensions.0, dimensions.1, FilterType::Lanczos3)
+    }
+    else{
+        image
+    }
+}
+
 fn compute_dimensions(
     original_width: u32,
     original_height: u32,
