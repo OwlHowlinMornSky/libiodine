@@ -14,7 +14,7 @@ use mozjpeg_sys::*;
 use crate::{CSParameters};
 use crate::error::CaesiumError;
 use crate::parameters::ChromaSubsampling;
-use crate::resize::resize;
+use crate::resize::resize_n;
 
 static JPEG_ERROR: AtomicI32 = AtomicI32::new(0);
 
@@ -47,10 +47,10 @@ pub fn compress_in_memory(
     if parameters.width > 0 || parameters.height > 0 {
         if parameters.keep_metadata {
             let metadata = extract_metadata(in_file.clone());
-            in_file = resize(in_file, parameters.width, parameters.height, Jpeg)?;
+            in_file = resize_n(in_file, parameters.allow_magnify, parameters.width, parameters.height, Jpeg)?;
             in_file = save_metadata(in_file, metadata.0, metadata.1);
         } else {
-            in_file = resize(in_file, parameters.width, parameters.height, Jpeg)?;
+            in_file = resize_n(in_file, parameters.allow_magnify, parameters.width, parameters.height, Jpeg)?;
         }
     }
 

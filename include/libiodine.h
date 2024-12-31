@@ -39,6 +39,7 @@ typedef struct CSI_Parameters {
     bool  optimize;
     uint32_t  width;
     uint32_t  height;
+    bool  allow_magnify;
 } CSI_Parameters;
 
 CSI_Result csi_compress(const char* input_path, const char* output_path, CSI_Parameters* params);

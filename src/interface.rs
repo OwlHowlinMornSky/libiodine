@@ -26,6 +26,7 @@ pub struct CSI_Parameters {
     pub optimize: bool,
     pub width: u32,
     pub height: u32,
+    pub allow_magnify: bool,
 }
 
 #[repr(C)]
@@ -212,6 +213,7 @@ fn csi_set_parameters(params: CSI_Parameters) -> CSParameters {
     parameters.webp.quality = params.webp_quality;
     parameters.width = params.width;
     parameters.height = params.height;
+    parameters.allow_magnify = params.allow_magnify;
     
     parameters.jpeg.chroma_subsampling = match params.jpeg_chroma_subsampling {
         444 => ChromaSubsampling::CS444,
