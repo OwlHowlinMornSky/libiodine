@@ -8,7 +8,7 @@ use oxipng::Deflaters::Zopfli;
 
 use crate::CSParameters;
 use crate::error::CaesiumError;
-use crate::resize::resize;
+use crate::resize::resize_n;
 
 pub fn compress(
     input_path: String,
@@ -21,8 +21,9 @@ pub fn compress(
     })?;
 
     if parameters.width > 0 || parameters.height > 0 {
-        in_file = resize(
+        in_file = resize_n(
             in_file,
+            parameters.allow_magnify,
             parameters.width,
             parameters.height,
             ImageFormat::Png,

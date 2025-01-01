@@ -10,7 +10,7 @@ use tiff::encoder::TiffEncoder;
 use crate::{CSParameters, TiffDeflateLevel};
 use crate::error::CaesiumError;
 use crate::parameters::TiffCompression;
-use crate::resize::resize_image;
+use crate::resize::resize_image_n;
 
 pub fn compress(
     input_path: String,
@@ -72,7 +72,7 @@ pub fn compress_in_memory(
     };
 
     if parameters.width > 0 || parameters.height > 0 {
-        image = resize_image(image, parameters.width, parameters.height);
+        image = resize_image_n(image, parameters.allow_magnify, parameters.width, parameters.height);
     }
 
     let color_type = image.color();

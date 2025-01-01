@@ -48,9 +48,64 @@ pub fn resize(
     Ok(resized_file)
 }
 
+pub fn resize_n(
+    image_buffer: Vec<u8>,
+    allow_magnify: bool,
+    width: u32,
+    height: u32,
+    format: image::ImageFormat,
+) -> Result<Vec<u8>, CaesiumError> {
+    let buffer_slice: &[u8] = image_buffer.as_slice();
+    let (mut desired_width, mut desired_height) = (width, height);
+    if format == image::ImageFormat::Jpeg {
+        let orientation = get_jpeg_orientation(buffer_slice);
+        (desired_width, desired_height) = match orientation {
+            5..=8 => (height, width),
+            _ => (width, height)
+        };
+    }
+    
+    let mut image = ImageReader::new(Cursor::new(image_buffer))
+        .with_guessed_format()
+        .map_err(|e| CaesiumError {
+            message: e.to_string(),
+            code: 10300,
+        })?
+        .decode()
+        .map_err(|e| CaesiumError {
+            message: e.to_string(),
+            code: 10301,
+        })?;
+
+    let dimensions = compute_dimensions(image.width(), image.height(), desired_width, desired_height);
+    if allow_magnify || (image.width() > dimensions.0 || image.height() > dimensions.1) {
+        image = image.resize_exact(dimensions.0, dimensions.1, FilterType::Lanczos3);
+    }
+    
+    let mut resized_file: Vec<u8> = vec![];
+    image
+        .write_to(&mut Cursor::new(&mut resized_file), format)
+        .map_err(|e| CaesiumError {
+            message: e.to_string(),
+            code: 10302,
+        })?;
+
+    Ok(resized_file)
+}
+
 pub fn resize_image(image: DynamicImage, width: u32, height: u32) -> DynamicImage {
     let dimensions = compute_dimensions(image.width(), image.height(), width, height);
     image.resize_exact(dimensions.0, dimensions.1, FilterType::Lanczos3)
+}
+
+pub fn resize_image_n(image: DynamicImage, allow_magnify: bool, width: u32, height: u32) -> DynamicImage {
+    let dimensions = compute_dimensions(image.width(), image.height(), width, height);
+    if allow_magnify || (image.width() > dimensions.0 || image.height() > dimensions.1) {
+        image.resize_exact(dimensions.0, dimensions.1, FilterType::Lanczos3)
+    }
+    else{
+        image
+    }
 }
 
 fn compute_dimensions(

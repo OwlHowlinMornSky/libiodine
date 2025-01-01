@@ -109,6 +109,7 @@ pub struct TiffParameters {
 /// - `optimize`: Whether to use lossless compression
 /// - `width`: Width of the output image
 /// - `height`: Height of the output image
+/// - `allow_magnify`: 
 #[derive(Copy, Clone)]
 pub struct CSParameters {
     pub jpeg: JpegParameters,
@@ -119,7 +120,8 @@ pub struct CSParameters {
     pub keep_metadata: bool,
     pub optimize: bool,
     pub width: u32,
-    pub height: u32
+    pub height: u32,
+    pub allow_magnify: bool
 }
 impl Default for CSParameters {
     fn default() -> Self {
@@ -146,7 +148,7 @@ fn initialize_parameters() -> CSParameters {
     };
     let gif = GifParameters { quality: 80 };
     let webp = WebPParameters { quality: 80 };
-    let tiff = TiffParameters {
+    let tiff: TiffParameters = TiffParameters {
         algorithm: Deflate,
         deflate_level: TiffDeflateLevel::Balanced,
     };
@@ -160,6 +162,7 @@ fn initialize_parameters() -> CSParameters {
         keep_metadata: false,
         optimize: false,
         width: 0,
-        height: 0
+        height: 0,
+        allow_magnify: false
     }
 }
