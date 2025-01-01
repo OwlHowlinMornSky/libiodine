@@ -3,7 +3,7 @@
 
 *You can find the C header file in the include folder in the project root directory.*
 
-Libcaesium exposes there C functions, auto-detecting the input file type:
+Libiodine exposes there C functions, auto-detecting the input file type:
 
 ### Data Structures
 
