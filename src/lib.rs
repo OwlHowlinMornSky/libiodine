@@ -412,10 +412,6 @@ pub fn convert_into(
     let file_type = get_filetype_from_path(&input_path);
 
     if file_type == format {
-        /*return Err(CaesiumError {
-            message: "Cannot convert to the same format".into(),
-            code: 10406,
-        });*/
         return compress_into(input_path, output_buffer, obufmaxlen, parameters);
     }
     
