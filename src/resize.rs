@@ -122,14 +122,24 @@ fn compute_dimensions(
     desired_height: u32,
     rbpo2: bool,
 ) -> (u32, u32) {
-    if rbpo2 && desired_width < original_width && desired_height < original_height {
-        let mut resx = original_width;
-        let mut resy = original_height;
-        while desired_width < resx || desired_height < resy {
-            resx /= 2;
-            resy /= 2;
+    if rbpo2 && desired_width < original_width && desired_height < original_height && (desired_width != 0 || desired_height != 0) {
+        let mut n_width = original_width as f32;
+        let mut n_height = original_height as f32;
+        let mut dw = desired_width as f32;
+        let mut dh = desired_height as f32;
+        if desired_width == 0 {
+            dw = (original_width + 1) as f32;
         }
-        (resx, resy)
+        if desired_height == 0 {
+            dh = (original_height + 1) as f32;
+        }
+        while n_width > dw || n_height > dh {
+            n_width /= 2.0;
+            n_height /= 2.0;
+        }
+        n_width = n_width.round();
+        n_height = n_height.round();
+        (n_width as u32, n_height as u32)
     }
     else{
         if desired_width > 0 && desired_height > 0 {
