@@ -108,6 +108,33 @@ pub fn compress_into(
     Ok(out_data.len() as u64)
 }
 
+pub fn compress_fromto(
+    input: Vec<u8>,
+    output_buffer: *mut c_void,
+    obufmaxlen: u64,
+    parameters: &CSParameters,
+) -> error::Result<u64> {
+    validate_parameters(parameters)?;
+
+    let out_data = compress_in_memory(input, parameters).map_err(|e| CaesiumError {
+        message: e.to_string(),
+        code: 11411,
+    })?;
+
+    if out_data.len() > obufmaxlen as usize {
+        return Err(CaesiumError {
+            message: "[Compress] Buffer too small.".into(),
+            code: out_data.len() as u64,
+        });
+    }
+
+    unsafe {
+        std::ptr::copy_nonoverlapping(out_data.as_ptr(), output_buffer.cast(), out_data.len());
+    }
+
+    Ok(out_data.len() as u64)
+}
+
 /// Compresses an image file in memory and returns the compressed image as a byte vector.
 ///
 /// # Arguments
@@ -356,6 +383,44 @@ pub fn compress_to_size_into(
     Ok(compressed_file.len() as u64)
 }
 
+pub fn compress_to_size_fromto(
+    input: Vec<u8>,
+    output_buffer: *mut c_void,
+    obufmaxlen: u64,
+    parameters: &mut CSParameters,
+    max_output_size: usize,
+    return_smallest: bool,
+) -> error::Result<u64> {
+    if (obufmaxlen as usize) < max_output_size {
+        return Err(CaesiumError{
+            message: "[Compress by Size] Output Buffer is smaller than Max Size.".into(),
+            code: 11200,
+        });
+    }
+    
+    let original_size = input.len();
+    if original_size <= max_output_size {
+        unsafe {
+            std::ptr::copy_nonoverlapping(input.as_ptr(), output_buffer.cast(), input.len());
+        }
+        return Ok(input.len() as u64);
+    }
+    let compressed_file =
+        compress_to_size_in_memory(input, parameters, max_output_size, return_smallest)?;
+
+    if compressed_file.len() > obufmaxlen as usize {
+        return Err(CaesiumError {
+            message: "[Compress by Size] Buffer too small.".into(),
+            code: compressed_file.len() as u64,
+        });
+    }
+
+    unsafe {
+        std::ptr::copy_nonoverlapping(compressed_file.as_ptr(), output_buffer.cast(), compressed_file.len());
+    }
+    Ok(compressed_file.len() as u64)
+}
+
 /// Converts an image file from the input path to a specified format and writes the converted image to the output path.
 ///
 /// # Arguments
@@ -412,10 +477,6 @@ pub fn convert_into(
     let file_type = get_filetype_from_path(&input_path);
 
     if file_type == format {
-        /*return Err(CaesiumError {
-            message: "Cannot convert to the same format".into(),
-            code: 10406,
-        });*/
         return compress_into(input_path, output_buffer, obufmaxlen, parameters);
     }
     
@@ -424,6 +485,38 @@ pub fn convert_into(
         code: 11410,
     })?;
     let out_data = convert_in_memory(in_file, parameters, format).map_err(|e| CaesiumError {
+        message: e.to_string(),
+        code: 11411,
+    })?;
+
+    if out_data.len() > obufmaxlen as usize {
+        return Err(CaesiumError {
+            message: "[Convert] Buffer too small.".into(),
+            code: out_data.len() as u64,
+        });
+    }
+
+    unsafe {
+        std::ptr::copy_nonoverlapping(out_data.as_ptr(), output_buffer.cast(), out_data.len());
+    }
+
+    Ok(out_data.len() as u64)
+}
+
+pub fn convert_fromto(
+    input: Vec<u8>,
+    output_buffer: *mut c_void,
+    obufmaxlen: u64,
+    parameters: &CSParameters,
+    format: SupportedFileTypes
+) -> error::Result<u64> {
+    let file_type = get_filetype_from_memory(&input);
+
+    if file_type == format {
+        return compress_fromto(input, output_buffer, obufmaxlen, parameters);
+    }
+
+    let out_data = convert_in_memory(input, parameters, format).map_err(|e| CaesiumError {
         message: e.to_string(),
         code: 11411,
     })?;

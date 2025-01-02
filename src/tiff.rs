@@ -72,7 +72,7 @@ pub fn compress_in_memory(
     };
 
     if parameters.width > 0 || parameters.height > 0 {
-        image = resize_image_n(image, parameters.allow_magnify, parameters.width, parameters.height);
+        image = resize_image_n(image, parameters.allow_magnify, parameters.reduce_by_power_of_2, parameters.width, parameters.height);
     }
 
     let color_type = image.color();

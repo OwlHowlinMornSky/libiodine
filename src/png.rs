@@ -24,6 +24,7 @@ pub fn compress(
         in_file = resize_n(
             in_file,
             parameters.allow_magnify,
+            parameters.reduce_by_power_of_2,
             parameters.width,
             parameters.height,
             ImageFormat::Png,

@@ -40,19 +40,26 @@ typedef struct CSI_Parameters {
     uint32_t  width;
     uint32_t  height;
     bool  allow_magnify;
+    bool  reduce_by_power_of_2;
 } CSI_Parameters;
 
 CSI_Result csi_compress(const char* input_path, const char* output_path, CSI_Parameters* params);
 
 CSI_Result csi_compress_into(const char* input_path, void* output_buffer, uint64_t obufmaxlen, CSI_Parameters* params);
 
+CSI_Result csi_compress_fromto(const void* input_buffer, uint64_t ibuflen, void* output_buffer, uint64_t obufmaxlen, CSI_Parameters* params);
+
 CSI_Result csi_compress_to_size(const char* input_path, const char* output_path, CSI_Parameters* params, uint64_t max_output_size, bool return_smallest);
 
 CSI_Result csi_compress_to_size_into(const char* input_path, void* output_buffer, uint64_t obufmaxlen, CSI_Parameters* params, uint64_t max_output_size, bool return_smallest);
 
+CSI_Result csi_compress_to_size_fromto(const void* input_buffer, uint64_t ibuflen, void* output_buffer, uint64_t obufmaxlen, CSI_Parameters* params, uint64_t max_output_size, bool return_smallest);
+
 CSI_Result csi_convert(const char* input_path, const char* output_path, CSI_SupportedFileTypes format, CSI_Parameters* params);
 
 CSI_Result csi_convert_into(const char* input_path, void* output_buffer, uint64_t obufmaxlen, CSI_SupportedFileTypes format, CSI_Parameters* params);
+
+CSI_Result csi_convert_fromto(const void* input_buffer, uint64_t ibuflen, void* output_buffer, uint64_t obufmaxlen, CSI_SupportedFileTypes format, CSI_Parameters* params);
 
 #ifdef __cplusplus
 }

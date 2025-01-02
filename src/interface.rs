@@ -1,10 +1,11 @@
 use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_void};
+use std::slice::from_raw_parts;
 
 use crate::{
-    compress, compress_into,
-    compress_to_size, compress_to_size_into,
-    convert, convert_into,
+    compress, compress_into, compress_fromto,
+    compress_to_size, compress_to_size_into, compress_to_size_fromto,
+    convert, convert_into, convert_fromto,
     CSParameters, error, SupportedFileTypes, TiffDeflateLevel
 };
 use crate::parameters::ChromaSubsampling;
@@ -27,6 +28,7 @@ pub struct CSI_Parameters {
     pub width: u32,
     pub height: u32,
     pub allow_magnify: bool,
+    pub reduce_by_power_of_2: bool,
 }
 
 #[repr(C)]
@@ -64,6 +66,29 @@ pub unsafe extern "C" fn csi_compress_into(
 
     csi_return_result_u64(compress_into(
         CStr::from_ptr(input_path).to_str().unwrap().to_string(),
+        output_buffer, obufmaxlen,
+        &parameters,
+    ))
+}
+
+#[no_mangle]
+#[allow(clippy::missing_safety_doc)]
+pub unsafe extern "C" fn csi_compress_fromto(
+    input_buffer: *const c_void,
+    ibuflen: u64,
+    output_buffer: *mut c_void,
+    obufmaxlen: u64,
+    params: CSI_Parameters,
+) -> CSI_Result {
+    let parameters = csi_set_parameters(params);
+
+    let in_file: Vec<u8>;
+    unsafe {
+        in_file = from_raw_parts(input_buffer as *const u8, ibuflen as usize).to_vec();
+    }
+    
+    csi_return_result_u64(compress_fromto(
+        in_file,
         output_buffer, obufmaxlen,
         &parameters,
     ))
@@ -112,6 +137,33 @@ pub unsafe extern "C" fn csi_compress_to_size_into(
 
 #[no_mangle]
 #[allow(clippy::missing_safety_doc)]
+pub unsafe extern "C" fn csi_compress_to_size_fromto(
+    input_buffer: *const c_void,
+    ibuflen: u64,
+    output_buffer: *mut c_void,
+    obufmaxlen: u64,
+    params: CSI_Parameters,
+    max_output_size: usize,
+    return_smallest: bool,
+) -> CSI_Result {
+    let mut parameters = csi_set_parameters(params);
+
+    let in_file: Vec<u8>;
+    unsafe {
+        in_file = from_raw_parts(input_buffer as *const u8, ibuflen as usize).to_vec();
+    }
+
+    csi_return_result_u64(compress_to_size_fromto(
+        in_file,
+        output_buffer, obufmaxlen,
+        &mut parameters,
+        max_output_size,
+        return_smallest,
+    ))
+}
+
+#[no_mangle]
+#[allow(clippy::missing_safety_doc)]
 pub unsafe extern "C" fn csi_convert(
     input_path: *const c_char,
     output_path: *const c_char,
@@ -141,6 +193,31 @@ pub unsafe extern "C" fn csi_convert_into(
 
     csi_return_result_u64(convert_into(
         CStr::from_ptr(input_path).to_str().unwrap().to_string(),
+        output_buffer, obufmaxlen,
+        &parameters,
+        format
+    ))
+}
+
+#[no_mangle]
+#[allow(clippy::missing_safety_doc)]
+pub unsafe extern "C" fn csi_convert_fromto(
+    input_buffer: *const c_void,
+    ibuflen: u64,
+    output_buffer: *mut c_void,
+    obufmaxlen: u64,
+    format: SupportedFileTypes,
+    params: CSI_Parameters,
+) -> CSI_Result {
+    let parameters = csi_set_parameters(params);
+
+    let in_file: Vec<u8>;
+    unsafe {
+        in_file = from_raw_parts(input_buffer as *const u8, ibuflen as usize).to_vec();
+    }
+
+    csi_return_result_u64(convert_fromto(
+        in_file,
         output_buffer, obufmaxlen,
         &parameters,
         format
@@ -214,6 +291,7 @@ fn csi_set_parameters(params: CSI_Parameters) -> CSParameters {
     parameters.width = params.width;
     parameters.height = params.height;
     parameters.allow_magnify = params.allow_magnify;
+    parameters.reduce_by_power_of_2 = params.reduce_by_power_of_2;
     
     parameters.jpeg.chroma_subsampling = match params.jpeg_chroma_subsampling {
         444 => ChromaSubsampling::CS444,
