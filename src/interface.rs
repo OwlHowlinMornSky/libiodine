@@ -28,6 +28,7 @@ pub struct CSI_Parameters {
     pub width: u32,
     pub height: u32,
     pub allow_magnify: bool,
+    pub reduce_by_power_of_2: bool,
 }
 
 #[repr(C)]
@@ -290,6 +291,7 @@ fn csi_set_parameters(params: CSI_Parameters) -> CSParameters {
     parameters.width = params.width;
     parameters.height = params.height;
     parameters.allow_magnify = params.allow_magnify;
+    parameters.reduce_by_power_of_2 = params.reduce_by_power_of_2;
     
     parameters.jpeg.chroma_subsampling = match params.jpeg_chroma_subsampling {
         444 => ChromaSubsampling::CS444,

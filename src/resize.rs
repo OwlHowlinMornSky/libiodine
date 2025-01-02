@@ -53,6 +53,7 @@ pub fn resize(
 pub fn resize_n(
     image_buffer: Vec<u8>,
     allow_magnify: bool,
+    reduce_by_power_of_2: bool,
     width: u32,
     height: u32,
     format: image::ImageFormat,
@@ -79,7 +80,7 @@ pub fn resize_n(
             code: 10301,
         })?;
 
-    let dimensions = compute_dimensions(image.width(), image.height(), desired_width, desired_height);
+    let dimensions = compute_dimensions(image.width(), image.height(), desired_width, desired_height, reduce_by_power_of_2);
     if !allow_magnify && (image.width() < dimensions.0 || image.height() < dimensions.1) {
         return Ok(image_buffer);
     }
@@ -104,8 +105,8 @@ pub fn resize_image(image: DynamicImage, width: u32, height: u32) -> DynamicImag
 }
 */
 
-pub fn resize_image_n(image: DynamicImage, allow_magnify: bool, width: u32, height: u32) -> DynamicImage {
-    let dimensions = compute_dimensions(image.width(), image.height(), width, height);
+pub fn resize_image_n(image: DynamicImage, allow_magnify: bool, reduce_by_power_of_2: bool, width: u32, height: u32) -> DynamicImage {
+    let dimensions = compute_dimensions(image.width(), image.height(), width, height, reduce_by_power_of_2);
     if !allow_magnify && (image.width() < dimensions.0 || image.height() < dimensions.1) {
         image
     }
@@ -119,24 +120,36 @@ fn compute_dimensions(
     original_height: u32,
     desired_width: u32,
     desired_height: u32,
+    rbpo2: bool,
 ) -> (u32, u32) {
-    if desired_width > 0 && desired_height > 0 {
-        return (desired_width, desired_height);
+    if rbpo2 && desired_width < original_width && desired_height < original_height {
+        let mut resx = original_width;
+        let mut resy = original_height;
+        while desired_width < resx || desired_height < resy {
+            resx /= 2;
+            resy /= 2;
+        }
+        (resx, resy)
     }
+    else{
+        if desired_width > 0 && desired_height > 0 {
+            return (desired_width, desired_height);
+        }
 
-    let mut n_width = desired_width as f32;
-    let mut n_height = desired_height as f32;
-    let ratio = original_width as f32 / original_height as f32;
+        let mut n_width = desired_width as f32;
+        let mut n_height = desired_height as f32;
+        let ratio = original_width as f32 / original_height as f32;
 
-    if desired_height == 0 {
-        n_height = (n_width / ratio).round();
+        if desired_height == 0 {
+            n_height = (n_width / ratio).round();
+        }
+
+        if desired_width == 0 {
+            n_width = (n_height * ratio).round();
+        }
+
+        (n_width as u32, n_height as u32)
     }
-
-    if desired_width == 0 {
-        n_width = (n_height * ratio).round();
-    }
-
-    (n_width as u32, n_height as u32)
 }
 
 #[test]
