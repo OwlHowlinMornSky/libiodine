@@ -67,7 +67,7 @@ pub fn resize_n(
         };
     }
     
-    let mut image = ImageReader::new(Cursor::new(image_buffer))
+    let mut image = ImageReader::new(Cursor::new(&image_buffer))
         .with_guessed_format()
         .map_err(|e| CaesiumError {
             message: e.to_string(),
@@ -80,10 +80,12 @@ pub fn resize_n(
         })?;
 
     let dimensions = compute_dimensions(image.width(), image.height(), desired_width, desired_height);
-    if allow_magnify || (image.width() > dimensions.0 || image.height() > dimensions.1) {
-        image = image.resize_exact(dimensions.0, dimensions.1, FilterType::Lanczos3);
+    if !allow_magnify && (image.width() < dimensions.0 || image.height() < dimensions.1) {
+        return Ok(image_buffer);
     }
     
+    image = image.resize_exact(dimensions.0, dimensions.1, FilterType::Lanczos3);
+
     let mut resized_file: Vec<u8> = vec![];
     image
         .write_to(&mut Cursor::new(&mut resized_file), format)
@@ -104,11 +106,11 @@ pub fn resize_image(image: DynamicImage, width: u32, height: u32) -> DynamicImag
 
 pub fn resize_image_n(image: DynamicImage, allow_magnify: bool, width: u32, height: u32) -> DynamicImage {
     let dimensions = compute_dimensions(image.width(), image.height(), width, height);
-    if allow_magnify || (image.width() > dimensions.0 || image.height() > dimensions.1) {
-        image.resize_exact(dimensions.0, dimensions.1, FilterType::Lanczos3)
+    if !allow_magnify && (image.width() < dimensions.0 || image.height() < dimensions.1) {
+        image
     }
     else{
-        image
+        image.resize_exact(dimensions.0, dimensions.1, FilterType::Lanczos3)
     }
 }
 
