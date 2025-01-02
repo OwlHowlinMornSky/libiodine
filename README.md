@@ -3,7 +3,7 @@
 Libiodine is a simple library performing JPEG, PNG, WebP and GIF (experimental) compression/optimization written in
 Rust, with a C interface.
 
-It can compress/convert images and write each one into a specified file or a memory buffer.
+It can compress/convert images from files or memory buffer and write each one into a specified file or a memory buffer.
 
 > [!WARNING]
 > starting from v0.6.0 the library is written in Rust and no longer in C. There's a C interface, but it's not backward
