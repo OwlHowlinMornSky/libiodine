@@ -6,6 +6,7 @@ use image::{DynamicImage, ImageReader};
 use crate::error::CaesiumError;
 use crate::utils::get_jpeg_orientation;
 
+/*
 pub fn resize(
     image_buffer: Vec<u8>,
     width: u32,
@@ -47,6 +48,7 @@ pub fn resize(
 
     Ok(resized_file)
 }
+*/
 
 pub fn resize_n(
     image_buffer: Vec<u8>,
@@ -93,10 +95,12 @@ pub fn resize_n(
     Ok(resized_file)
 }
 
+/*
 pub fn resize_image(image: DynamicImage, width: u32, height: u32) -> DynamicImage {
     let dimensions = compute_dimensions(image.width(), image.height(), width, height);
     image.resize_exact(dimensions.0, dimensions.1, FilterType::Lanczos3)
 }
+*/
 
 pub fn resize_image_n(image: DynamicImage, allow_magnify: bool, width: u32, height: u32) -> DynamicImage {
     let dimensions = compute_dimensions(image.width(), image.height(), width, height);
