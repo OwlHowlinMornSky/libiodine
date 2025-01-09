@@ -32,19 +32,19 @@ tiff = ["image/tiff"]
 parallel = ["oxipng?/parallel", "imagequant?/threads", "dssim/threads"]
 
 [dependencies]
-mozjpeg-sys = { version = "2.2.1", optional = true }
-oxipng = { version = "9.1.3", default-features = false, features = ["filetime", "zopfli"], optional = true }
-libc = "0.2.169"
-gifsicle = { version = "1.95.0", optional = true }
-webp = { version = "0.3.0", optional = true }
-infer = "0.16.0"
-image = { version = "0.25.5", default-features = false }
-img-parts = "0.3.2"
-bytes = "1.9.0"
-lodepng = { version = "3.10.7", optional = true }
-imagequant = { version = "4.3.3", optional = true, default-features = false }
-tiff = { version = "0.9.1" }
-kamadak-exif = "0.6.1"
+mozjpeg-sys = { version = "2.2", optional = true }
+oxipng = { version = "9.1", default-features = false, features = ["filetime", "zopfli"], optional = true }
+libc = "0.2"
+gifsicle = { version = "1.95", optional = true }
+webp = { version = "0.3", optional = true }
+infer = "0.16"
+image = { version = "0.25", default-features = false }
+img-parts = "0.3"
+bytes = "1.9"
+lodepng = { version = "3.10", optional = true }
+imagequant = { version = "4.3", optional = true, default-features = false }
+tiff = { version = "0.9" }
+kamadak-exif = "0.6"
 
 [dev-dependencies]
 dssim = { version = "3.3.2", default-features = false, features = ["no-macos-vimage"] }
