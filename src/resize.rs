@@ -122,9 +122,12 @@ fn compute_dimensions(
     desired_height: u32,
     rbpo2: bool,
 ) -> (u32, u32) {
-    if rbpo2 && desired_width < original_width && desired_height < original_height && (desired_width != 0 || desired_height != 0) {
-        let mut n_width = original_width as f32;
-        let mut n_height = original_height as f32;
+
+    let mut n_width = original_width as f32;
+    let mut n_height = original_height as f32;
+    let ratio = original_width as f32 / original_height as f32;
+
+    if rbpo2 && ((desired_width > 3 && desired_width < original_width) || (desired_height > 3 && desired_height < original_height)) {
         let mut dw = desired_width as f32;
         let mut dh = desired_height as f32;
         if desired_width == 0 {
@@ -133,33 +136,108 @@ fn compute_dimensions(
         if desired_height == 0 {
             dh = (original_height + 1) as f32;
         }
+
         while n_width > dw || n_height > dh {
             n_width /= 2.0;
             n_height /= 2.0;
         }
-        n_width = n_width.round();
-        n_height = n_height.round();
-        (n_width as u32, n_height as u32)
+
+        let nw1 = n_width.ceil();
+        let nh1 = n_height.ceil();
+        let nw2 = n_width.floor();
+        let nh2 = n_height.floor();
+
+        let mut ratio1 = nw1 / nh1;
+        let mut ratio2 = nw2 / nh2;
+        if ratio > ratio1 {
+            ratio1 = ratio / ratio1;
+        }
+        else {
+            ratio1 = ratio1 / ratio;
+        }
+        if ratio > ratio2 {
+            ratio2 = ratio / ratio2;
+        }
+        else {
+            ratio2 = ratio2 / ratio;
+        }
+
+        if ratio1 < ratio2 {
+            n_width = nw1;
+            n_height = nh1;
+        }
+        else {
+            n_width = nw2;
+            n_height = nh2;
+        }
+        
     }
     else{
         if desired_width > 0 && desired_height > 0 {
             return (desired_width, desired_height);
         }
 
-        let mut n_width = desired_width as f32;
-        let mut n_height = desired_height as f32;
-        let ratio = original_width as f32 / original_height as f32;
-
         if desired_height == 0 {
-            n_height = (n_width / ratio).round();
+            n_height = n_width / ratio;
+
+            let n1 = n_height.ceil();
+            let n2 = n_height.floor();
+
+            let mut ratio1 = n_width / n1;
+            let mut ratio2 = n_width / n2;
+
+            if ratio > ratio1 {
+                ratio1 = ratio / ratio1;
+            }
+            else {
+                ratio1 = ratio1 / ratio;
+            }
+            if ratio > ratio2 {
+                ratio2 = ratio / ratio2;
+            }
+            else {
+                ratio2 = ratio2 / ratio;
+            }
+
+            if ratio1 < ratio2 {
+                n_height = n1;
+            }
+            else {
+                n_height = n2;
+            }
         }
 
         if desired_width == 0 {
-            n_width = (n_height * ratio).round();
-        }
+            n_width = n_height * ratio;
 
-        (n_width as u32, n_height as u32)
+            let n1 = n_width.ceil();
+            let n2 = n_width.floor();
+
+            let mut ratio1 = n1 / n_height;
+            let mut ratio2 = n2 / n_height;
+
+            if ratio > ratio1 {
+                ratio1 = ratio / ratio1;
+            }
+            else {
+                ratio1 = ratio1 / ratio;
+            }
+            if ratio > ratio2 {
+                ratio2 = ratio / ratio2;
+            }
+            else {
+                ratio2 = ratio2 / ratio;
+            }
+
+            if ratio1 < ratio2 {
+                n_width = n1;
+            }
+            else {
+                n_width = n2;
+            }
+        }
     }
+    (n_width as u32, n_height as u32)
 }
 
 #[test]
