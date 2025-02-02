@@ -1,6 +1,6 @@
 [package]
 name = "libiodine"
-version = "0.17.1"
+version = "0.17.2-T"
 authors = ["Matteo Paonessa <matteo.paonessa@gmail.com>", "Tyler Parret True <https://github.com/OwlHowlinMornSky>"]
 edition = "2021"
 categories = ["multimedia::images"]
