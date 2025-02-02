@@ -123,6 +123,8 @@ pub struct CSParameters {
     pub height: u32,
     pub allow_magnify: bool,
     pub reduce_by_power_of_2: bool,
+    pub short_side_pixels: u32,
+    pub long_size_pixels: u32,
 }
 impl Default for CSParameters {
     fn default() -> Self {
@@ -166,5 +168,7 @@ fn initialize_parameters() -> CSParameters {
         height: 0,
         allow_magnify: false,
         reduce_by_power_of_2: false,
+        short_side_pixels: 0,
+        long_size_pixels: 0,
     }
 }

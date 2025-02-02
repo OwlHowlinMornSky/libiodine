@@ -93,7 +93,7 @@ pub fn compress_in_memory(
         for (i, f) in frames.into_iter().enumerate() {
             if must_resize {
                 let mut dyn_image = to_dynamic_image(f);
-                dyn_image = resize_image_n(dyn_image, parameters.allow_magnify, parameters.reduce_by_power_of_2, parameters.width, parameters.height);
+                dyn_image = resize_image_n(dyn_image, parameters.allow_magnify, parameters.reduce_by_power_of_2, parameters.width, parameters.height, parameters.short_side_pixels, parameters.long_size_pixels);
                 if i == 0 {
                     width = dyn_image.width();
                     height = dyn_image.height();
@@ -142,7 +142,7 @@ pub fn compress_in_memory(
         };
         let mut input_image = (&first_frame).into();
         if must_resize {
-            input_image = resize_image_n(input_image, parameters.allow_magnify, parameters.reduce_by_power_of_2, parameters.width, parameters.height);
+            input_image = resize_image_n(input_image, parameters.allow_magnify, parameters.reduce_by_power_of_2, parameters.width, parameters.height, parameters.short_side_pixels, parameters.long_size_pixels);
         }
 
         let encoder = match webp::Encoder::from_image(&input_image) {

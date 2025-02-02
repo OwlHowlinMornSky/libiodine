@@ -27,6 +27,8 @@ pub fn compress(
             parameters.reduce_by_power_of_2,
             parameters.width,
             parameters.height,
+            parameters.short_side_pixels,
+            parameters.long_size_pixels,
             ImageFormat::Png,
         )?;
     }

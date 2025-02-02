@@ -47,10 +47,10 @@ pub fn compress_in_memory(
     if parameters.width > 0 || parameters.height > 0 {
         if parameters.keep_metadata {
             let metadata = extract_metadata(in_file.clone());
-            in_file = resize_n(in_file, parameters.allow_magnify, parameters.reduce_by_power_of_2, parameters.width, parameters.height, Jpeg)?;
+            in_file = resize_n(in_file, parameters.allow_magnify, parameters.reduce_by_power_of_2, parameters.width, parameters.height, parameters.short_side_pixels, parameters.long_size_pixels, Jpeg)?;
             in_file = save_metadata(in_file, metadata.0, metadata.1);
         } else {
-            in_file = resize_n(in_file, parameters.allow_magnify, parameters.reduce_by_power_of_2, parameters.width, parameters.height, Jpeg)?;
+            in_file = resize_n(in_file, parameters.allow_magnify, parameters.reduce_by_power_of_2, parameters.width, parameters.height, parameters.short_side_pixels, parameters.long_size_pixels, Jpeg)?;
         }
     }
 
