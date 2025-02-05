@@ -20,7 +20,7 @@ pub fn compress(
         code: 20200,
     })?;
 
-    if parameters.width > 0 || parameters.height > 0 {
+    if parameters.width > 0 || parameters.height > 0 || parameters.short_side_pixels > 0 || parameters.long_size_pixels > 0 {
         in_file = resize_n(
             in_file,
             parameters.allow_magnify,

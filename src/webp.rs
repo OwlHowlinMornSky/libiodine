@@ -62,7 +62,7 @@ pub fn compress_in_memory(
             .map_or((None, None), |dyn_img| (dyn_img.icc_profile(), dyn_img.exif()));
     }
 
-    let must_resize = parameters.width > 0 || parameters.height > 0;
+    let must_resize = parameters.width > 0 || parameters.height > 0|| parameters.short_side_pixels > 0 || parameters.long_size_pixels > 0 ;
 
     let anim_decoder = AnimDecoder::new(&in_file);
     let frames = anim_decoder.decode().map_err(|e| CaesiumError {

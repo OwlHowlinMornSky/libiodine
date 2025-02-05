@@ -71,7 +71,7 @@ pub fn compress_in_memory(
         }
     };
 
-    if parameters.width > 0 || parameters.height > 0 {
+    if parameters.width > 0 || parameters.height > 0 || parameters.short_side_pixels > 0 || parameters.long_size_pixels > 0 {
         image = resize_image_n(image, parameters.allow_magnify, parameters.reduce_by_power_of_2, parameters.width, parameters.height, parameters.short_side_pixels, parameters.long_size_pixels);
     }
 
