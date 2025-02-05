@@ -75,11 +75,6 @@ fn compute_dimensions(
     long_size_pixels: u32,
     rbpo2: bool,
 ) -> (u32, u32) {
-
-    let mut n_width = original_width as f32;
-    let mut n_height = original_height as f32;
-    let ratio = original_width as f32 / original_height as f32;
-
     if desired_width == 0 && desired_height == 0 && (short_side_pixels != 0 || long_size_pixels != 0) {
         if original_width < original_height {
             desired_width = short_side_pixels;
@@ -91,25 +86,24 @@ fn compute_dimensions(
         }
     }
 
-    if rbpo2 && ((desired_width > 3 && desired_width < original_width) || (desired_height > 3 && desired_height < original_height)) {
-        let mut dw = desired_width as f32;
-        let mut dh = desired_height as f32;
-        if desired_width == 0 {
-            dw = (original_width + 1) as f32;
-        }
-        if desired_height == 0 {
-            dh = (original_height + 1) as f32;
-        }
+    let mut n_width = original_width as f32;
+    let mut n_height = original_height as f32;
+    let ratio = original_width as f32 / original_height as f32;
 
-        while n_width > dw || n_height > dh {
+    if rbpo2 && ((desired_width > 3 && desired_width < original_width) || (desired_height > 3 && desired_height < original_height)) {
+        let dw = desired_width as f32;
+        let dh = desired_height as f32;
+        while (desired_width > 3 && n_width > dw) || (desired_height > 3 && n_height > dh) {
             n_width /= 2.0;
             n_height /= 2.0;
         }
-
         n_width = n_width.ceil();
         n_height = n_height.ceil();
     }
     else {
+        n_width = desired_width as f32;
+        n_height = desired_height as f32;
+
         if desired_width > 0 && desired_height > 0 {
             return (desired_width, desired_height);
         }
