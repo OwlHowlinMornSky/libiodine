@@ -46,15 +46,16 @@ void TestFileMapping() {
 }
 
 void TestResize() {
-	char input[] = "3.jpg";
-	char output[] = "out.jpg";
+	char input[] = "36.jpg";
+	char output[] = "out2.jpg";
 
 	CSI_Parameters parameters = {};
 	parameters.keep_metadata = false;
-	parameters.jpeg_quality = 60;
+	parameters.jpeg_quality = 80;
 	parameters.png_quality = 1;
 	parameters.allow_magnify = false;
-	parameters.short_side_pixels = 600;
+	parameters.short_side_pixels = 2400;
+	//parameters.reduce_by_power_of_2 = true;
 
 	//CSI_Result res = csi_convert(input, output, SupportedFileTypes::Png, &parameters);
 	CSI_Result res = csi_compress(input, output, &parameters);
