@@ -9,6 +9,10 @@ It can compress/convert images from files or memory buffer and write each one in
 > starting from v0.6.0 the library is written in Rust and no longer in C. There's a C interface, but it's not backward
 > compatible with the <0.6.0.
 
+## Fork Info
+
+Libiodine is modified specifically for [this repository](https://github.com/OwlHowlinMornSky/Merge-Pictures-to-PDF), problems not relative may be ignored.
+
 ## Usage example
 
 Libcaesium exposes two functions, auto-detecting the input file type
