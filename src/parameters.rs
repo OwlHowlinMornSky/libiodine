@@ -116,7 +116,7 @@ pub struct TiffParameters {
 /// - `keep_metadata`: Whether to keep metadata in the compressed image
 /// - `width`: Width of the output image
 /// - `height`: Height of the output image
-/// - `allow_magnify`: 
+/// - `allow_magnify`:
 #[derive(Copy, Clone)]
 pub struct CSParameters {
     pub jpeg: JpegParameters,

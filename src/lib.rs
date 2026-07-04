@@ -353,7 +353,7 @@ pub fn compress_to_size_into(
 ) -> error::Result<u64> {
     validate_parameters(parameters)?;
     if (obufmaxlen as usize) < max_output_size {
-        return Err(CaesiumError{
+        return Err(CaesiumError {
             message: "[Compress by Size] Output Buffer is smaller than Max Size.".into(),
             code: 11200,
         });
@@ -369,8 +369,7 @@ pub fn compress_to_size_into(
         }
         return Ok(in_file.len() as u64);
     }
-    let compressed_file =
-        compress_to_size_in_memory(in_file, parameters, max_output_size, return_smallest)?;
+    let compressed_file = compress_to_size_in_memory(in_file, parameters, max_output_size, return_smallest)?;
 
     if compressed_file.len() > obufmaxlen as usize {
         return Err(CaesiumError {
@@ -395,12 +394,12 @@ pub fn compress_to_size_fromto(
 ) -> error::Result<u64> {
     validate_parameters(parameters)?;
     if (obufmaxlen as usize) < max_output_size {
-        return Err(CaesiumError{
+        return Err(CaesiumError {
             message: "[Compress by Size] Output Buffer is smaller than Max Size.".into(),
             code: 11200,
         });
     }
-    
+
     let original_size = input.len();
     if original_size <= max_output_size {
         unsafe {
@@ -408,8 +407,7 @@ pub fn compress_to_size_fromto(
         }
         return Ok(input.len() as u64);
     }
-    let compressed_file =
-        compress_to_size_in_memory(input, parameters, max_output_size, return_smallest)?;
+    let compressed_file = compress_to_size_in_memory(input, parameters, max_output_size, return_smallest)?;
 
     if compressed_file.len() > obufmaxlen as usize {
         return Err(CaesiumError {
@@ -479,7 +477,7 @@ pub fn convert_into(
     output_buffer: *mut c_void,
     obufmaxlen: u64,
     parameters: &CSParameters,
-    format: SupportedFileTypes
+    format: SupportedFileTypes,
 ) -> error::Result<u64> {
     validate_parameters(parameters)?;
     let file_type = get_filetype_from_path(&input_path);
@@ -487,7 +485,7 @@ pub fn convert_into(
     if file_type == format {
         return compress_into(input_path, output_buffer, obufmaxlen, parameters);
     }
-    
+
     let in_file = fs::read(input_path).map_err(|e| CaesiumError {
         message: e.to_string(),
         code: 11410,
@@ -516,7 +514,7 @@ pub fn convert_fromto(
     output_buffer: *mut c_void,
     obufmaxlen: u64,
     parameters: &CSParameters,
-    format: SupportedFileTypes
+    format: SupportedFileTypes,
 ) -> error::Result<u64> {
     validate_parameters(parameters)?;
     let file_type = get_filetype_from_memory(&input);

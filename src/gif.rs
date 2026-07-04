@@ -1,5 +1,6 @@
 use crate::error::CaesiumError;
 use crate::resize::compute_dimensions;
+use crate::resize::ResizeInfo;
 use crate::CSParameters;
 use gifski::{progress, Settings};
 use std::fs;
@@ -49,7 +50,18 @@ fn lossy(in_file: &Vec<u8>, parameters: &CSParameters) -> Result<Vec<u8>, Caesiu
     let old_w = decoder.width() as u32;
     let old_h = decoder.height() as u32;
     let (new_w, new_h) = if parameters.width > 0 || parameters.height > 0 {
-        compute_dimensions(old_w, old_h, parameters.width, parameters.height, parameters.short_side_pixels, parameters.long_size_pixels, parameters.reduce_by_power_of_2)
+        compute_dimensions(
+            old_w,
+            old_h,
+            parameters.width,
+            parameters.height,
+            ResizeInfo {
+                allow_magnify: false,
+                reduce_by_power_of_2: parameters.reduce_by_power_of_2,
+                short_side_pixels: parameters.short_side_pixels,
+                long_size_pixels: parameters.long_size_pixels,
+            },
+        )
     } else {
         (old_w, old_h)
     };

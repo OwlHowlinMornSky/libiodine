@@ -5,11 +5,9 @@ use std::slice::from_raw_parts;
 use crate::parameters::ChromaSubsampling;
 use crate::parameters::TiffCompression::{Deflate, Lzw, Packbits, Uncompressed};
 use crate::{
-    compress, compress_into, compress_fromto,
-    compress_in_memory,
-    compress_to_size, compress_to_size_into, compress_to_size_fromto,
-    convert, convert_into, convert_fromto,
-    error, CSParameters, SupportedFileTypes, TiffDeflateLevel,
+    compress, compress_fromto, compress_in_memory, compress_into, compress_to_size, compress_to_size_fromto,
+    compress_to_size_into, convert, convert_fromto, convert_into, error, CSParameters, SupportedFileTypes,
+    TiffDeflateLevel,
 };
 
 #[repr(C)]
@@ -77,7 +75,8 @@ pub unsafe extern "C" fn csi_compress_into(
 
     csi_return_result_u64(compress_into(
         CStr::from_ptr(input_path).to_str().unwrap().to_string(),
-        output_buffer, obufmaxlen,
+        output_buffer,
+        obufmaxlen,
         &parameters,
     ))
 }
@@ -97,12 +96,8 @@ pub unsafe extern "C" fn csi_compress_fromto(
     unsafe {
         in_file = from_raw_parts(input_buffer as *const u8, ibuflen as usize).to_vec();
     }
-    
-    csi_return_result_u64(compress_fromto(
-        in_file,
-        output_buffer, obufmaxlen,
-        &parameters,
-    ))
+
+    csi_return_result_u64(compress_fromto(in_file, output_buffer, obufmaxlen, &parameters))
 }
 
 #[no_mangle]
@@ -196,7 +191,8 @@ pub unsafe extern "C" fn csi_compress_to_size_into(
 
     csi_return_result_u64(compress_to_size_into(
         CStr::from_ptr(input_path).to_str().unwrap().to_string(),
-        output_buffer, obufmaxlen,
+        output_buffer,
+        obufmaxlen,
         &mut parameters,
         max_output_size,
         return_smallest,
@@ -223,7 +219,8 @@ pub unsafe extern "C" fn csi_compress_to_size_fromto(
 
     csi_return_result_u64(compress_to_size_fromto(
         in_file,
-        output_buffer, obufmaxlen,
+        output_buffer,
+        obufmaxlen,
         &mut parameters,
         max_output_size,
         return_smallest,
@@ -261,9 +258,10 @@ pub unsafe extern "C" fn csi_convert_into(
 
     csi_return_result_u64(convert_into(
         CStr::from_ptr(input_path).to_str().unwrap().to_string(),
-        output_buffer, obufmaxlen,
+        output_buffer,
+        obufmaxlen,
         &parameters,
-        format
+        format,
     ))
 }
 
@@ -284,12 +282,7 @@ pub unsafe extern "C" fn csi_convert_fromto(
         in_file = from_raw_parts(input_buffer as *const u8, ibuflen as usize).to_vec();
     }
 
-    csi_return_result_u64(convert_fromto(
-        in_file,
-        output_buffer, obufmaxlen,
-        &parameters,
-        format
-    ))
+    csi_return_result_u64(convert_fromto(in_file, output_buffer, obufmaxlen, &parameters, format))
 }
 
 fn csi_return_result(result: error::Result<()>) -> CSI_Result {
@@ -309,20 +302,16 @@ fn csi_return_result(result: error::Result<()>) -> CSI_Result {
 
 fn csi_return_result_u64(result: error::Result<u64>) -> CSI_Result {
     match result {
-        Ok(len) => {
-            CSI_Result {
-                success: true,
-                code: len,
-                error_message: CString::new("").unwrap().into_raw(),
-            }
-        }
-        Err(e) => {
-            CSI_Result {
-                success: false,
-                code: e.code,
-                error_message: CString::new(e.to_string()).unwrap().into_raw(),
-            }
-        }
+        Ok(len) => CSI_Result {
+            success: true,
+            code: len,
+            error_message: CString::new("").unwrap().into_raw(),
+        },
+        Err(e) => CSI_Result {
+            success: false,
+            code: e.code,
+            error_message: CString::new(e.to_string()).unwrap().into_raw(),
+        },
     }
 }
 
@@ -360,14 +349,13 @@ fn csi_set_parameters(params: CSI_Parameters) -> CSParameters {
     parameters.webp.quality = params.webp_quality;
     parameters.webp.lossless = params.webp_lossless;
 
-
     parameters.width = params.width;
     parameters.height = params.height;
     parameters.allow_magnify = params.allow_magnify;
     parameters.reduce_by_power_of_2 = params.reduce_by_power_of_2;
     parameters.short_side_pixels = params.short_side_pixels;
     parameters.long_size_pixels = params.long_size_pixels;
-    
+
     parameters.jpeg.chroma_subsampling = match params.jpeg_chroma_subsampling {
         444 => ChromaSubsampling::CS444,
         422 => ChromaSubsampling::CS422,

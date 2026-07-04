@@ -1,6 +1,7 @@
 use crate::error::CaesiumError;
 use crate::parameters::ChromaSubsampling;
 use crate::resize::resize_n;
+use crate::resize::ResizeInfo;
 use crate::CSParameters;
 use bytes::Bytes;
 use image::ImageFormat::Jpeg;
@@ -37,8 +38,23 @@ pub fn compress(input_path: String, output_path: String, parameters: &CSParamete
 }
 
 pub fn compress_in_memory(in_file: &[u8], parameters: &CSParameters) -> Result<Vec<u8>, CaesiumError> {
-    if parameters.width > 0 || parameters.height > 0 || parameters.short_side_pixels > 0 || parameters.long_size_pixels > 0 {
-        let mut input = resize_n(in_file, parameters.allow_magnify, parameters.reduce_by_power_of_2, parameters.width, parameters.height, parameters.short_side_pixels, parameters.long_size_pixels, Jpeg)?;
+    if parameters.width > 0
+        || parameters.height > 0
+        || parameters.short_side_pixels > 0
+        || parameters.long_size_pixels > 0
+    {
+        let mut input = resize_n(
+            in_file,
+            parameters.width,
+            parameters.height,
+            Jpeg,
+            ResizeInfo {
+                allow_magnify: parameters.allow_magnify,
+                reduce_by_power_of_2: parameters.reduce_by_power_of_2,
+                short_side_pixels: parameters.short_side_pixels,
+                long_size_pixels: parameters.long_size_pixels,
+            },
+        )?;
         if parameters.keep_metadata || parameters.jpeg.preserve_icc {
             let (iccp, exif) = extract_metadata(in_file);
             if iccp.is_some() || exif.is_some() {
@@ -49,8 +65,8 @@ pub fn compress_in_memory(in_file: &[u8], parameters: &CSParameters) -> Result<V
                     parameters.jpeg.preserve_icc && !parameters.keep_metadata,
                 )?;
             }
-        } 
-        
+        }
+
         unsafe {
             return catch_unwind(|| {
                 if parameters.jpeg.optimize {
