@@ -7,7 +7,7 @@ use crate::error::CaesiumError;
 use crate::utils::get_jpeg_orientation;
 
 pub fn resize_n(
-    image_buffer: Vec<u8>,
+    image_buffer: &[u8],
     allow_magnify: bool,
     reduce_by_power_of_2: bool,
     width: u32,
@@ -16,17 +16,16 @@ pub fn resize_n(
     long_size_pixels: u32,
     format: image::ImageFormat,
 ) -> Result<Vec<u8>, CaesiumError> {
-    let buffer_slice: &[u8] = image_buffer.as_slice();
     let (mut desired_width, mut desired_height) = (width, height);
     if format == image::ImageFormat::Jpeg {
-        let orientation = get_jpeg_orientation(buffer_slice);
+        let orientation = get_jpeg_orientation(image_buffer);
         (desired_width, desired_height) = match orientation {
             5..=8 => (height, width),
-            _ => (width, height)
+            _ => (width, height),
         };
     }
-    
-    let mut image = ImageReader::new(Cursor::new(&image_buffer))
+
+    let mut image = ImageReader::new(Cursor::new(image_buffer))
         .with_guessed_format()
         .map_err(|e| CaesiumError {
             message: e.to_string(),
@@ -66,7 +65,7 @@ pub fn resize_image_n(image: DynamicImage, allow_magnify: bool, reduce_by_power_
     }
 }
 
-fn compute_dimensions(
+pub fn compute_dimensions(
     original_width: u32,
     original_height: u32,
     mut desired_width: u32,
@@ -146,10 +145,7 @@ fn downscale_on_width() {
     let original_width = 800;
     let original_height = 600;
 
-    assert_eq!(
-        compute_dimensions(original_width, original_height, 750, 0),
-        (750, 563)
-    )
+    assert_eq!(compute_dimensions(original_width, original_height, 750, 0), (750, 563))
 }
 
 #[test]
@@ -157,8 +153,5 @@ fn downscale_on_height() {
     let original_width = 800;
     let original_height = 600;
 
-    assert_eq!(
-        compute_dimensions(original_width, original_height, 0, 478),
-        (637, 478)
-    )
+    assert_eq!(compute_dimensions(original_width, original_height, 0, 478), (637, 478))
 }

@@ -3,18 +3,18 @@ use std::fs::File;
 use std::io::Write;
 use std::num::NonZeroU8;
 
-use image::ImageFormat;
-use oxipng::Deflaters::Zopfli;
-
-use crate::CSParameters;
 use crate::error::CaesiumError;
 use crate::resize::resize_n;
+use crate::CSParameters;
+use image::ImageFormat;
+use imagequant::RGBA;
+use oxipng::Deflaters::Zopfli;
 
-pub fn compress(
-    input_path: String,
-    output_path: String,
-    parameters: &CSParameters,
-) -> Result<(), CaesiumError> {
+use bytes::Bytes;
+use img_parts::png::Png as PartsPng;
+use img_parts::{ImageEXIF, ImageICC};
+
+pub fn compress(input_path: String, output_path: String, parameters: &CSParameters) -> Result<(), CaesiumError> {
     let mut in_file = fs::read(input_path).map_err(|e| CaesiumError {
         message: e.to_string(),
         code: 20200,
@@ -22,7 +22,7 @@ pub fn compress(
 
     if parameters.width > 0 || parameters.height > 0 || parameters.short_side_pixels > 0 || parameters.long_size_pixels > 0 {
         in_file = resize_n(
-            in_file,
+            &in_file,
             parameters.allow_magnify,
             parameters.reduce_by_power_of_2,
             parameters.width,
@@ -33,7 +33,7 @@ pub fn compress(
         )?;
     }
 
-    let optimized_png = compress_in_memory(in_file, parameters)?;
+    let optimized_png = compress_in_memory(&in_file, parameters)?;
     let mut output_file_buffer = File::create(output_path).map_err(|e| CaesiumError {
         message: e.to_string(),
         code: 20202,
@@ -48,20 +48,29 @@ pub fn compress(
     Ok(())
 }
 
-pub fn compress_in_memory(
-    in_file: Vec<u8>,
-    parameters: &CSParameters,
-) -> Result<Vec<u8>, CaesiumError> {
-    let optimized_png: Vec<u8> = if parameters.optimize {
-        lossless(in_file, parameters)?
-    } else {
-        lossy(in_file, parameters)?
-    };
+pub fn compress_in_memory(in_file: &[u8], parameters: &CSParameters) -> Result<Vec<u8>, CaesiumError> {
+    if parameters.width > 0 || parameters.height > 0 {
+        let input = resize(in_file, parameters.width, parameters.height, ImageFormat::Png)?;
 
-    Ok(optimized_png)
+        if parameters.png.optimize {
+            Ok(lossless(&input, parameters)?)
+        } else {
+            Ok(lossy(&input, parameters)?)
+        }
+    } else if parameters.png.optimize {
+        Ok(lossless(in_file, parameters)?)
+    } else {
+        Ok(lossy(in_file, parameters)?)
+    }
 }
 
-fn lossy(in_file: Vec<u8>, parameters: &CSParameters) -> Result<Vec<u8>, CaesiumError> {
+fn lossy(in_file: &[u8], parameters: &CSParameters) -> Result<Vec<u8>, CaesiumError> {
+    let (iccp, exif) = if parameters.keep_metadata {
+        extract_metadata(in_file)
+    } else {
+        (None, None)
+    };
+
     let rgba_bitmap = lodepng::decode32(in_file).map_err(|e| CaesiumError {
         message: e.to_string(),
         code: 20204,
@@ -91,20 +100,27 @@ fn lossy(in_file: Vec<u8>, parameters: &CSParameters) -> Result<Vec<u8>, Caesium
         code: 20207,
     })?;
 
-    let (palette, pixels) = quantization
-        .remapped(&mut liq_image)
-        .map_err(|e| CaesiumError {
-            message: e.to_string(),
-            code: 20208,
-        })?;
+    let (palette, pixels) = quantization.remapped(&mut liq_image).map_err(|e| CaesiumError {
+        message: e.to_string(),
+        code: 20208,
+    })?;
+
+    let palette = palette
+        .iter()
+        .map(|px| {
+            if px.a == 0 {
+                RGBA { r: 0, g: 0, b: 0, a: 0 }
+            } else {
+                *px
+            }
+        })
+        .collect::<Vec<RGBA>>();
 
     let mut encoder = lodepng::Encoder::new();
-    encoder
-        .set_palette(palette.as_slice())
-        .map_err(|e| CaesiumError {
-            message: e.to_string(),
-            code: 20212,
-        })?;
+    encoder.set_palette(palette.as_slice()).map_err(|e| CaesiumError {
+        message: e.to_string(),
+        code: 20212,
+    })?;
     let png_vec = encoder
         .encode(pixels.as_slice(), rgba_bitmap.width, rgba_bitmap.height)
         .map_err(|e| CaesiumError {
@@ -112,16 +128,20 @@ fn lossy(in_file: Vec<u8>, parameters: &CSParameters) -> Result<Vec<u8>, Caesium
             code: 20209,
         })?;
 
+    if parameters.keep_metadata && (iccp.is_some() || exif.is_some()) {
+        return save_metadata(png_vec, iccp, exif);
+    }
+
     Ok(png_vec)
 }
 
-fn lossless(in_file: Vec<u8>, parameters: &CSParameters) -> Result<Vec<u8>, CaesiumError> {
+fn lossless(in_file: &[u8], parameters: &CSParameters) -> Result<Vec<u8>, CaesiumError> {
     let mut oxipng_options = oxipng::Options::default();
     if !parameters.keep_metadata {
         oxipng_options.strip = oxipng::StripChunks::Safe;
     }
 
-    if parameters.optimize && parameters.png.force_zopfli {
+    if parameters.png.optimize && parameters.png.force_zopfli {
         let mut iterations = 15;
         if in_file.len() > 2000000 {
             iterations = 5;
@@ -134,13 +154,34 @@ fn lossless(in_file: Vec<u8>, parameters: &CSParameters) -> Result<Vec<u8>, Caes
         oxipng_options = oxipng::Options::from_preset(optimization_level);
     }
 
-    let optimized_png =
-        oxipng::optimize_from_memory(in_file.as_slice(), &oxipng_options).map_err(|e| {
-            CaesiumError {
-                message: e.to_string(),
-                code: 20210,
-            }
-        })?;
+    let optimized_png = oxipng::optimize_from_memory(in_file, &oxipng_options).map_err(|e| CaesiumError {
+        message: e.to_string(),
+        code: 20210,
+    })?;
 
     Ok(optimized_png)
+}
+
+fn extract_metadata(image: &[u8]) -> (Option<Bytes>, Option<Bytes>) {
+    let Ok(png) = PartsPng::from_bytes(Bytes::from(image.to_vec())) else {
+        return (None, None);
+    };
+    let iccp = png.icc_profile().map(|b| Bytes::copy_from_slice(&b));
+    let exif = png.exif().map(|b| Bytes::copy_from_slice(&b));
+    (iccp, exif)
+}
+
+fn save_metadata(image_buffer: Vec<u8>, iccp: Option<Bytes>, exif: Option<Bytes>) -> Result<Vec<u8>, CaesiumError> {
+    let mut png = PartsPng::from_bytes(Bytes::from(image_buffer)).map_err(|e| CaesiumError {
+        message: e.to_string(),
+        code: 20210,
+    })?;
+    png.set_icc_profile(iccp);
+    png.set_exif(exif);
+    let mut output = Vec::new();
+    png.encoder().write_to(&mut output).map_err(|e| CaesiumError {
+        message: e.to_string(),
+        code: 20211,
+    })?;
+    Ok(output)
 }

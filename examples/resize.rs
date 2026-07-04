@@ -10,8 +10,8 @@ fn main() -> ExitCode {
     let output = args[2].clone();
 
     let mut parameters = CSParameters::new();
-    parameters.keep_metadata = true;
-    parameters.jpeg.quality = 60;
+    parameters.width = 100;
+    parameters.height = 100;
 
     match compress(input, output, &parameters) {
         Ok(_) => ExitCode::SUCCESS,

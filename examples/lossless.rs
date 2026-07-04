@@ -1,5 +1,5 @@
-use caesium::parameters::CSParameters;
 use caesium::compress;
+use caesium::parameters::CSParameters;
 use std::env;
 use std::process::ExitCode;
 
@@ -11,12 +11,14 @@ fn main() -> ExitCode {
 
     let mut parameters = CSParameters::new();
     parameters.keep_metadata = true;
-    parameters.optimize = true;
+    parameters.jpeg.optimize = true;
+    parameters.png.optimize = true;
+    parameters.webp.lossless = true;
 
     match compress(input, output, &parameters) {
         Ok(_) => ExitCode::SUCCESS,
         Err(e) => {
-            eprintln!("{}", e);
+            eprintln!("{e}");
             ExitCode::FAILURE
         }
     }
