@@ -4,10 +4,10 @@ use std::slice::from_raw_parts;
 
 use crate::parameters::ChromaSubsampling;
 use crate::parameters::TiffCompression::{Deflate, Lzw, Packbits, Uncompressed};
+use crate::resize::ResizeInfo;
 use crate::{
-    compress, compress_fromto, compress_in_memory, compress_into, compress_to_size, compress_to_size_fromto,
-    compress_to_size_into, convert, convert_fromto, convert_into, error, CSParameters, SupportedFileTypes,
-    TiffDeflateLevel,
+    CSParameters, SupportedFileTypes, TiffDeflateLevel, compress, compress_fromto, compress_in_memory, compress_into,
+    compress_to_size, compress_to_size_fromto, compress_to_size_into, convert, convert_fromto, convert_into, error,
 };
 
 #[repr(C)]
@@ -351,10 +351,14 @@ fn csi_set_parameters(params: CSI_Parameters) -> CSParameters {
 
     parameters.width = params.width;
     parameters.height = params.height;
-    parameters.allow_magnify = params.allow_magnify;
-    parameters.reduce_by_power_of_2 = params.reduce_by_power_of_2;
-    parameters.short_side_pixels = params.short_side_pixels;
-    parameters.long_size_pixels = params.long_size_pixels;
+
+    let exinfo = ResizeInfo {
+        allow_magnify: params.allow_magnify,
+        reduce_by_power_of_2: params.reduce_by_power_of_2,
+        short_side_pixels: params.short_side_pixels,
+        long_size_pixels: params.long_size_pixels,
+    };
+    parameters.exinfo = exinfo;
 
     parameters.jpeg.chroma_subsampling = match params.jpeg_chroma_subsampling {
         444 => ChromaSubsampling::CS444,

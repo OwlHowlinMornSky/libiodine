@@ -1,4 +1,5 @@
 use crate::parameters::TiffCompression::Deflate;
+use crate::resize::ResizeInfo;
 
 /// Enum representing different chroma subsampling options for JPEG compression.
 ///
@@ -127,10 +128,7 @@ pub struct CSParameters {
     pub keep_metadata: bool,
     pub width: u32,
     pub height: u32,
-    pub allow_magnify: bool,
-    pub reduce_by_power_of_2: bool,
-    pub short_side_pixels: u32,
-    pub long_size_pixels: u32,
+    pub exinfo: ResizeInfo,
 }
 impl Default for CSParameters {
     fn default() -> Self {
@@ -168,6 +166,13 @@ fn initialize_parameters() -> CSParameters {
         deflate_level: TiffDeflateLevel::Balanced,
     };
 
+    let exinfo = ResizeInfo {
+        allow_magnify: false,
+        reduce_by_power_of_2: false,
+        short_side_pixels: 0,
+        long_size_pixels: 0,
+    };
+
     CSParameters {
         jpeg,
         png,
@@ -177,9 +182,6 @@ fn initialize_parameters() -> CSParameters {
         keep_metadata: false,
         width: 0,
         height: 0,
-        allow_magnify: false,
-        reduce_by_power_of_2: false,
-        short_side_pixels: 0,
-        long_size_pixels: 0,
+        exinfo,
     }
 }

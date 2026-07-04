@@ -8,10 +8,9 @@ use img_parts::webp::WebP as PartsWebp;
 use img_parts::{DynImage, ImageEXIF, ImageICC};
 use webp::{AnimDecoder, AnimEncoder, AnimFrame, WebPConfig};
 
+use crate::CSParameters;
 use crate::error::CaesiumError;
 use crate::resize::resize_image_n;
-use crate::resize::ResizeInfo;
-use crate::CSParameters;
 
 pub fn compress(input_path: String, output_path: String, parameters: &CSParameters) -> Result<(), CaesiumError> {
     let mut input_file = File::open(input_path).map_err(|e| CaesiumError {
@@ -54,8 +53,8 @@ pub fn compress_in_memory(in_file: &[u8], parameters: &CSParameters) -> Result<V
 
     let must_resize = parameters.width > 0
         || parameters.height > 0
-        || parameters.short_side_pixels > 0
-        || parameters.long_size_pixels > 0;
+        || parameters.exinfo.short_side_pixels > 0
+        || parameters.exinfo.long_size_pixels > 0;
 
     let anim_decoder = AnimDecoder::new(in_file);
     let frames = anim_decoder.decode().map_err(|e| CaesiumError {
@@ -85,17 +84,7 @@ pub fn compress_in_memory(in_file: &[u8], parameters: &CSParameters) -> Result<V
         for (i, f) in frames.into_iter().enumerate() {
             if must_resize {
                 let mut dyn_image = to_dynamic_image(f);
-                dyn_image = resize_image_n(
-                    dyn_image,
-                    parameters.width,
-                    parameters.height,
-                    ResizeInfo {
-                        allow_magnify: parameters.allow_magnify,
-                        reduce_by_power_of_2: parameters.reduce_by_power_of_2,
-                        short_side_pixels: parameters.short_side_pixels,
-                        long_size_pixels: parameters.long_size_pixels,
-                    },
-                );
+                dyn_image = resize_image_n(dyn_image, parameters.width, parameters.height, parameters.exinfo);
                 if i == 0 {
                     width = dyn_image.width();
                     height = dyn_image.height();
@@ -145,17 +134,7 @@ pub fn compress_in_memory(in_file: &[u8], parameters: &CSParameters) -> Result<V
         };
         let mut input_image = (&first_frame).into();
         if must_resize {
-            input_image = resize_image_n(
-                input_image,
-                parameters.width,
-                parameters.height,
-                ResizeInfo {
-                    allow_magnify: parameters.allow_magnify,
-                    reduce_by_power_of_2: parameters.reduce_by_power_of_2,
-                    short_side_pixels: parameters.short_side_pixels,
-                    long_size_pixels: parameters.long_size_pixels,
-                },
-            );
+            input_image = resize_image_n(input_image, parameters.width, parameters.height, parameters.exinfo);
         }
 
         let encoder = match webp::Encoder::from_image(&input_image) {

@@ -3,10 +3,9 @@ use std::fs::File;
 use std::io::Write;
 use std::num::NonZeroU8;
 
+use crate::CSParameters;
 use crate::error::CaesiumError;
 use crate::resize::resize_n;
-use crate::resize::ResizeInfo;
-use crate::CSParameters;
 use image::ImageFormat;
 use imagequant::RGBA;
 use oxipng::Deflaters::Zopfli;
@@ -23,20 +22,15 @@ pub fn compress(input_path: String, output_path: String, parameters: &CSParamete
 
     if parameters.width > 0
         || parameters.height > 0
-        || parameters.short_side_pixels > 0
-        || parameters.long_size_pixels > 0
+        || parameters.exinfo.short_side_pixels > 0
+        || parameters.exinfo.long_size_pixels > 0
     {
         in_file = resize_n(
             &in_file,
             parameters.width,
             parameters.height,
             ImageFormat::Png,
-            ResizeInfo {
-                allow_magnify: parameters.allow_magnify,
-                reduce_by_power_of_2: parameters.reduce_by_power_of_2,
-                short_side_pixels: parameters.short_side_pixels,
-                long_size_pixels: parameters.long_size_pixels,
-            },
+            parameters.exinfo,
         )?;
     }
 
@@ -62,12 +56,7 @@ pub fn compress_in_memory(in_file: &[u8], parameters: &CSParameters) -> Result<V
             parameters.width,
             parameters.height,
             ImageFormat::Png,
-            ResizeInfo {
-                allow_magnify: parameters.allow_magnify,
-                reduce_by_power_of_2: parameters.reduce_by_power_of_2,
-                short_side_pixels: parameters.short_side_pixels,
-                long_size_pixels: parameters.long_size_pixels,
-            },
+            parameters.exinfo,
         )?;
 
         if parameters.png.optimize {

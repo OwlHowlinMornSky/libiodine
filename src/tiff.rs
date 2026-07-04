@@ -3,14 +3,13 @@ use std::io::{Cursor, Read, Write};
 use std::panic;
 
 use image::ImageFormat::Tiff;
+use tiff::encoder::TiffEncoder;
 use tiff::encoder::colortype::{RGB8, RGBA8};
 use tiff::encoder::compression::{Deflate, DeflateLevel, Lzw, Packbits, Uncompressed};
-use tiff::encoder::TiffEncoder;
 
 use crate::error::CaesiumError;
 use crate::parameters::TiffCompression;
 use crate::resize::resize_image_n;
-use crate::resize::ResizeInfo;
 use crate::{CSParameters, TiffDeflateLevel};
 
 pub fn compress(input_path: String, output_path: String, parameters: &CSParameters) -> Result<(), CaesiumError> {
@@ -55,26 +54,16 @@ pub fn compress_in_memory(in_file: &Vec<u8>, parameters: &CSParameters) -> Resul
             return Err(CaesiumError {
                 message: e.to_string(),
                 code: 20504,
-            })
+            });
         }
     };
 
     if parameters.width > 0
         || parameters.height > 0
-        || parameters.short_side_pixels > 0
-        || parameters.long_size_pixels > 0
+        || parameters.exinfo.short_side_pixels > 0
+        || parameters.exinfo.long_size_pixels > 0
     {
-        image = resize_image_n(
-            image,
-            parameters.width,
-            parameters.height,
-            ResizeInfo {
-                allow_magnify: false,
-                reduce_by_power_of_2: parameters.reduce_by_power_of_2,
-                short_side_pixels: parameters.short_side_pixels,
-                long_size_pixels: parameters.long_size_pixels,
-            },
-        );
+        image = resize_image_n(image, parameters.width, parameters.height, parameters.exinfo);
     }
 
     let color_type = image.color();
