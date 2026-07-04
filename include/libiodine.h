@@ -25,27 +25,27 @@ typedef struct CSI_Result {
 } CSI_Result;
 
 typedef struct CSI_Parameters {
-    bool keep_metadata;
-    uint32_t jpeg_quality;
-    uint32_t jpeg_chroma_subsampling; // support 444, 422, 420, 411
-    bool jpeg_progressive;
-    bool jpeg_optimize;
-    bool jpeg_preserve_icc;
-    uint32_t  png_quality;
-    uint32_t  png_optimization_level;
-    bool  png_force_zopfli;
-    bool  png_optimize;
-    uint32_t  gif_quality;
-    uint32_t  webp_quality;
-    bool webp_lossless;
-    uint32_t  tiff_compression; // support 1:Lzw 2:Deflate 3:Packbits Other Int:Uncompressed
-    uint32_t  tiff_deflate_level; // support 1:Fast 6:Balanced Other Int:Best
-    uint32_t  width;
-    uint32_t  height;
-    bool  allow_magnify;
-    bool  reduce_by_power_of_2;
-    uint32_t short_side_pixels;
-    uint32_t long_size_pixels;
+    bool keep_metadata = false;
+    uint32_t jpeg_quality = 80;
+    uint32_t jpeg_chroma_subsampling = 0; // support 444, 422, 420, 411
+    bool jpeg_progressive = true;
+    bool jpeg_optimize = false;
+    bool jpeg_preserve_icc = true;
+    uint32_t  png_quality = 80;
+    uint32_t  png_optimization_level = 3;
+    bool  png_force_zopfli = false;
+    bool  png_optimize = false;
+    uint32_t  gif_quality = 80;
+    uint32_t  webp_quality = 80;
+    bool webp_lossless = false;
+    uint32_t  tiff_compression = 2; // support 1:Lzw 2:Deflate 3:Packbits Other Int:Uncompressed
+    uint32_t  tiff_deflate_level = 6; // support 1:Fast 6:Balanced Other Int:Best
+    uint32_t  width = 0;
+    uint32_t  height = 0;
+    bool  allow_magnify = false;
+    bool  reduce_by_power_of_2 = false;
+    uint32_t short_side_pixels = 0;
+    uint32_t long_size_pixels = 0;
 } CSI_Parameters;
 
 typedef struct CByteArray {
