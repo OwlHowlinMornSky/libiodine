@@ -143,6 +143,7 @@ pub fn compress_fromto(
 ///
 /// * `Result<Vec<u8>, CaesiumError>` - Returns a vector of bytes representing the compressed image if successful, otherwise returns a `CaesiumError`.
 pub fn compress_in_memory(in_file: Vec<u8>, parameters: &CSParameters) -> error::Result<Vec<u8>> {
+    validate_parameters(parameters)?;
     let file_type = get_filetype_from_memory(in_file.as_slice());
     let compressed_file = match file_type {
         #[cfg(feature = "jpg")]
@@ -184,6 +185,7 @@ pub fn compress_to_size_in_memory(
     max_output_size: usize,
     return_smallest: bool,
 ) -> error::Result<Vec<u8>> {
+    validate_parameters(parameters)?;
     let file_type = get_filetype_from_memory(&in_file);
 
     let tolerance_percentage = 2;
@@ -309,6 +311,7 @@ pub fn compress_to_size(
     max_output_size: usize,
     return_smallest: bool,
 ) -> error::Result<()> {
+    validate_parameters(parameters)?;
     let in_file = fs::read(input_path.clone()).map_err(|e| CaesiumError {
         message: e.to_string(),
         code: 10201,
@@ -348,6 +351,7 @@ pub fn compress_to_size_into(
     max_output_size: usize,
     return_smallest: bool,
 ) -> error::Result<u64> {
+    validate_parameters(parameters)?;
     if (obufmaxlen as usize) < max_output_size {
         return Err(CaesiumError{
             message: "[Compress by Size] Output Buffer is smaller than Max Size.".into(),
@@ -389,6 +393,7 @@ pub fn compress_to_size_fromto(
     max_output_size: usize,
     return_smallest: bool,
 ) -> error::Result<u64> {
+    validate_parameters(parameters)?;
     if (obufmaxlen as usize) < max_output_size {
         return Err(CaesiumError{
             message: "[Compress by Size] Output Buffer is smaller than Max Size.".into(),
@@ -437,6 +442,7 @@ pub fn convert(
     parameters: &CSParameters,
     format: SupportedFileTypes,
 ) -> error::Result<()> {
+    validate_parameters(parameters)?;
     let file_type = get_filetype_from_path(&input_path);
 
     if file_type == format {
@@ -475,6 +481,7 @@ pub fn convert_into(
     parameters: &CSParameters,
     format: SupportedFileTypes
 ) -> error::Result<u64> {
+    validate_parameters(parameters)?;
     let file_type = get_filetype_from_path(&input_path);
 
     if file_type == format {
@@ -511,6 +518,7 @@ pub fn convert_fromto(
     parameters: &CSParameters,
     format: SupportedFileTypes
 ) -> error::Result<u64> {
+    validate_parameters(parameters)?;
     let file_type = get_filetype_from_memory(&input);
 
     if file_type == format {
@@ -552,6 +560,7 @@ pub fn convert_in_memory(
     parameters: &CSParameters,
     format: SupportedFileTypes,
 ) -> Result<Vec<u8>, CaesiumError> {
+    validate_parameters(parameters)?;
     convert::convert_in_memory(in_file, format, parameters)
 }
 
