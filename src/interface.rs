@@ -6,8 +6,9 @@ use crate::parameters::ChromaSubsampling;
 use crate::parameters::TiffCompression::{Deflate, Lzw, Packbits, Uncompressed};
 use crate::resize::ResizeInfo;
 use crate::{
-    CSParameters, SupportedFileTypes, TiffDeflateLevel, compress, compress_fromto, compress_in_memory, compress_into,
-    compress_to_size, compress_to_size_fromto, compress_to_size_into, convert, convert_fromto, convert_into, error,
+    compress, compress_fromto, compress_in_memory, compress_into, compress_to_size, compress_to_size_fromto,
+    compress_to_size_into, convert, convert_fromto, convert_into, error, CSParameters, SupportedFileTypes,
+    TiffDeflateLevel,
 };
 
 #[repr(C)]

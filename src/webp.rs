@@ -8,9 +8,9 @@ use img_parts::webp::WebP as PartsWebp;
 use img_parts::{DynImage, ImageEXIF, ImageICC};
 use webp::{AnimDecoder, AnimEncoder, AnimFrame, WebPConfig};
 
-use crate::CSParameters;
 use crate::error::CaesiumError;
 use crate::resize::resize_image_n;
+use crate::CSParameters;
 
 pub fn compress(input_path: String, output_path: String, parameters: &CSParameters) -> Result<(), CaesiumError> {
     let mut input_file = File::open(input_path).map_err(|e| CaesiumError {

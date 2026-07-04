@@ -1,7 +1,7 @@
-use crate::CSParameters;
 use crate::error::CaesiumError;
 use crate::resize::compute_dimensions;
-use gifski::{Settings, progress};
+use crate::CSParameters;
+use gifski::{progress, Settings};
 use std::fs;
 use std::fs::File;
 use std::io::Write;

@@ -3,9 +3,9 @@ use std::io::{Cursor, Read, Write};
 use std::panic;
 
 use image::ImageFormat::Tiff;
-use tiff::encoder::TiffEncoder;
 use tiff::encoder::colortype::{RGB8, RGBA8};
 use tiff::encoder::compression::{Deflate, DeflateLevel, Lzw, Packbits, Uncompressed};
+use tiff::encoder::TiffEncoder;
 
 use crate::error::CaesiumError;
 use crate::parameters::TiffCompression;

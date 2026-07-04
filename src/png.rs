@@ -3,9 +3,9 @@ use std::fs::File;
 use std::io::Write;
 use std::num::NonZeroU8;
 
-use crate::CSParameters;
 use crate::error::CaesiumError;
 use crate::resize::resize_n;
+use crate::CSParameters;
 use image::ImageFormat;
 use imagequant::RGBA;
 use oxipng::Deflaters::Zopfli;
@@ -50,7 +50,11 @@ pub fn compress(input_path: String, output_path: String, parameters: &CSParamete
 }
 
 pub fn compress_in_memory(in_file: &[u8], parameters: &CSParameters) -> Result<Vec<u8>, CaesiumError> {
-    if parameters.width > 0 || parameters.height > 0 {
+    if parameters.width > 0
+        || parameters.height > 0
+        || parameters.exinfo.short_side_pixels > 0
+        || parameters.exinfo.long_size_pixels > 0
+    {
         let input = resize_n(
             in_file,
             parameters.width,

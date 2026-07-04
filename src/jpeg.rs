@@ -1,7 +1,7 @@
-use crate::CSParameters;
 use crate::error::CaesiumError;
 use crate::parameters::ChromaSubsampling;
 use crate::resize::resize_n;
+use crate::CSParameters;
 use bytes::Bytes;
 use image::ImageFormat::Jpeg;
 use img_parts::jpeg::Jpeg as PartsJpeg;
