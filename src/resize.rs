@@ -39,7 +39,7 @@ pub fn resize_n(
 
     let dimensions = compute_dimensions(image.width(), image.height(), desired_width, desired_height, short_side_pixels, long_size_pixels, reduce_by_power_of_2);
     if !allow_magnify && (image.width() < dimensions.0 || image.height() < dimensions.1) {
-        return Ok(image_buffer);
+        return Ok(image_buffer.to_vec());
     }
     
     image = image.resize_exact(dimensions.0, dimensions.1, FilterType::Lanczos3);

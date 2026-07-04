@@ -21,7 +21,7 @@ typedef enum CSI_SupportedFileTypes {
 typedef struct CSI_Result {
     bool success;
     uint64_t code;
-    char *error_message;
+    const char *error_message;
 } CSI_Result;
 
 typedef struct CSI_Parameters {
@@ -29,14 +29,17 @@ typedef struct CSI_Parameters {
     uint32_t jpeg_quality;
     uint32_t jpeg_chroma_subsampling; // support 444, 422, 420, 411
     bool jpeg_progressive;
+    bool jpeg_optimize;
+    bool jpeg_preserve_icc;
     uint32_t  png_quality;
     uint32_t  png_optimization_level;
     bool  png_force_zopfli;
+    bool  png_optimize;
     uint32_t  gif_quality;
     uint32_t  webp_quality;
+    bool webp_lossless;
     uint32_t  tiff_compression; // support 1:Lzw 2:Deflate 3:Packbits Other Int:Uncompressed
     uint32_t  tiff_deflate_level; // support 1:Fast 6:Balanced Other Int:Best
-    bool  optimize;
     uint32_t  width;
     uint32_t  height;
     bool  allow_magnify;
@@ -45,11 +48,18 @@ typedef struct CSI_Parameters {
     uint32_t long_size_pixels;
 } CSI_Parameters;
 
+typedef struct CByteArray {
+  uint8_t *data;
+  uintptr_t length;
+} CSI_ByteArray;
+
 CSI_Result csi_compress(const char* input_path, const char* output_path, CSI_Parameters* params);
 
 CSI_Result csi_compress_into(const char* input_path, void* output_buffer, uint64_t obufmaxlen, CSI_Parameters* params);
 
 CSI_Result csi_compress_fromto(const void* input_buffer, uint64_t ibuflen, void* output_buffer, uint64_t obufmaxlen, CSI_Parameters* params);
+
+CSI_Result csi_compress_in_memory(const uint8_t *input_data, uintptr_t input_length, struct CSI_Parameters params, struct CSI_ByteArray *output);
 
 CSI_Result csi_compress_to_size(const char* input_path, const char* output_path, CSI_Parameters* params, uint64_t max_output_size, bool return_smallest);
 
@@ -62,6 +72,10 @@ CSI_Result csi_convert(const char* input_path, const char* output_path, CSI_Supp
 CSI_Result csi_convert_into(const char* input_path, void* output_buffer, uint64_t obufmaxlen, CSI_SupportedFileTypes format, CSI_Parameters* params);
 
 CSI_Result csi_convert_fromto(const void* input_buffer, uint64_t ibuflen, void* output_buffer, uint64_t obufmaxlen, CSI_SupportedFileTypes format, CSI_Parameters* params);
+
+void csi_free_byte_array(struct CSI_ByteArray byte_array);
+
+void csi_free_string(char *ptr);
 
 #ifdef __cplusplus
 }

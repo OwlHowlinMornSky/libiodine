@@ -49,7 +49,7 @@ fn lossy(in_file: &Vec<u8>, parameters: &CSParameters) -> Result<Vec<u8>, Caesiu
     let old_w = decoder.width() as u32;
     let old_h = decoder.height() as u32;
     let (new_w, new_h) = if parameters.width > 0 || parameters.height > 0 {
-        compute_dimensions(old_w, old_h, parameters.width, parameters.height)
+        compute_dimensions(old_w, old_h, parameters.width, parameters.height, parameters.short_side_pixels, parameters.long_size_pixels, parameters.reduce_by_power_of_2)
     } else {
         (old_w, old_h)
     };

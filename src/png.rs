@@ -50,7 +50,7 @@ pub fn compress(input_path: String, output_path: String, parameters: &CSParamete
 
 pub fn compress_in_memory(in_file: &[u8], parameters: &CSParameters) -> Result<Vec<u8>, CaesiumError> {
     if parameters.width > 0 || parameters.height > 0 {
-        let input = resize(in_file, parameters.width, parameters.height, ImageFormat::Png)?;
+        let input = resize_n(in_file, parameters.allow_magnify, parameters.reduce_by_power_of_2, parameters.width, parameters.height, parameters.short_side_pixels, parameters.long_size_pixels, ImageFormat::Png)?;
 
         if parameters.png.optimize {
             Ok(lossless(&input, parameters)?)

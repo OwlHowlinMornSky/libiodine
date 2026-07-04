@@ -105,6 +105,8 @@ pub unsafe extern "C" fn csi_compress_fromto(
     ))
 }
 
+#[no_mangle]
+#[allow(clippy::missing_safety_doc)]
 pub unsafe extern "C" fn csi_compress_in_memory(
     input_data: *const u8,
     input_length: usize,
@@ -121,7 +123,7 @@ pub unsafe extern "C" fn csi_compress_in_memory(
 
     let input_vec = std::slice::from_raw_parts(input_data, input_length).to_vec();
 
-    let parameters = c_set_parameters(params);
+    let parameters = csi_set_parameters(params);
 
     match compress_in_memory(input_vec, &parameters) {
         Ok(compressed_data) => {
@@ -290,7 +292,7 @@ pub unsafe extern "C" fn csi_convert_fromto(
     ))
 }
 
-fn c_return_result(result: error::Result<()>) -> CSI_Result {
+fn csi_return_result(result: error::Result<()>) -> CSI_Result {
     match result {
         Ok(_) => CSI_Result {
             success: true,
@@ -306,26 +308,19 @@ fn c_return_result(result: error::Result<()>) -> CSI_Result {
 }
 
 fn csi_return_result_u64(result: error::Result<u64>) -> CSI_Result {
-    let mut error_message = CString::new("").unwrap();
-
     match result {
         Ok(len) => {
-            let em_pointer = error_message.as_ptr();
-            std::mem::forget(error_message);
             CSI_Result {
                 success: true,
                 code: len,
-                error_message: em_pointer,
+                error_message: CString::new("").unwrap().into_raw(),
             }
         }
         Err(e) => {
-            error_message = CString::new(e.to_string()).unwrap();
-            let em_pointer = error_message.as_ptr();
-            std::mem::forget(error_message);
             CSI_Result {
                 success: false,
                 code: e.code,
-                error_message: em_pointer,
+                error_message: CString::new(e.to_string()).unwrap().into_raw(),
             }
         }
     }
