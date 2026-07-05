@@ -57,6 +57,9 @@ libwebp-sys = "=0.9.5"
 [dev-dependencies]
 dssim = { version = "3.3.2", default-features = false, features = ["no-macos-vimage"] }
 
+[build-dependencies]
+winresource = "0.1"
+
 [lib]
 name = "iodine"
 path = "src/lib.rs"
