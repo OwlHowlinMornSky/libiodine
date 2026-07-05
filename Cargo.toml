@@ -58,7 +58,7 @@ libwebp-sys = "=0.9.5"
 dssim = { version = "3.3.2", default-features = false, features = ["no-macos-vimage"] }
 
 [lib]
-name = "libiodine"
+name = "iodine"
 path = "src/lib.rs"
 crate-type = ["lib", "cdylib"]
 test = true

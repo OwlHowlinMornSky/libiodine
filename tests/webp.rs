@@ -1,5 +1,5 @@
 use crate::cleanup::remove_compressed_test_file;
-use caesium::parameters::CSParameters;
+use iodine::parameters::CSParameters;
 use std::{fs::File, sync::Once};
 
 mod cleanup;
@@ -18,7 +18,7 @@ fn compress_20() {
     initialize(output);
     let mut params = CSParameters::new();
     params.webp.quality = 20;
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_家.webp"),
         String::from(output),
         &params,
@@ -35,7 +35,7 @@ fn compress_50() {
     initialize(output);
     let mut params = CSParameters::new();
     params.webp.quality = 50;
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_家.webp"),
         String::from(output),
         &params,
@@ -52,7 +52,7 @@ fn compress_80() {
     initialize(output);
     let mut params = CSParameters::new();
     params.webp.quality = 80;
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_家.webp"),
         String::from(output),
         &params,
@@ -69,7 +69,7 @@ fn compress_100() {
     initialize(output);
     let mut params = CSParameters::new();
     params.webp.quality = 100;
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_家.webp"),
         String::from(output),
         &params,
@@ -86,7 +86,7 @@ fn optimize() {
     initialize(output);
     let mut params = CSParameters::new();
     params.webp.lossless = true;
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_家.webp"),
         String::from(output),
         &params,
@@ -105,7 +105,7 @@ fn downscale_to_size() {
     let mut params = CSParameters::new();
     params.width = 150;
     params.height = 100;
-    caesium::compress_to_size(
+    iodine::compress_to_size(
         String::from("tests/samples/uncompressed_家.webp"),
         String::from(output),
         &mut params,
@@ -128,7 +128,7 @@ fn downscale_optimize() {
     params.webp.lossless = true;
     params.width = 150;
     params.height = 100;
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_家.webp"),
         String::from(output),
         &params,
@@ -146,7 +146,7 @@ fn compress_animated_80() {
     initialize(output);
     let mut params = CSParameters::new();
     params.webp.quality = 80;
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_animated.webp"),
         String::from(output),
         &params,

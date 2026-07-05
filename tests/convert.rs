@@ -1,5 +1,5 @@
-use caesium::parameters::CSParameters;
-use caesium::SupportedFileTypes;
+use iodine::parameters::CSParameters;
+use iodine::SupportedFileTypes;
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
@@ -23,7 +23,7 @@ fn convert_jpg_to_png() {
     initialize(output);
     let mut params = CSParameters::new();
     params.keep_metadata = true;
-    caesium::convert(
+    iodine::convert(
         String::from("tests/samples/uncompressed_드림캐쳐.jpg"),
         String::from(output),
         &params,
@@ -44,7 +44,7 @@ fn convert_jpg_to_webp() {
     let output = "tests/samples/output/jpg.to.webp";
     initialize(output);
     let params = CSParameters::new();
-    caesium::convert(
+    iodine::convert(
         String::from("tests/samples/uncompressed_드림캐쳐.jpg"),
         String::from(output),
         &params,
@@ -61,7 +61,7 @@ fn convert_jpg_to_tiff() {
     let output = "tests/samples/output/jpg.to.tiff";
     initialize(output);
     let params = CSParameters::new();
-    caesium::convert(
+    iodine::convert(
         String::from("tests/samples/uncompressed_드림캐쳐.jpg"),
         String::from(output),
         &params,
@@ -79,7 +79,7 @@ fn convert_png_to_jpg() {
     initialize(output);
     let mut params = CSParameters::new();
     params.keep_metadata = true;
-    caesium::convert(
+    iodine::convert(
         String::from("tests/samples/uncompressed_드림캐쳐.png"),
         String::from(output),
         &params,
@@ -100,7 +100,7 @@ fn convert_png_to_webp() {
     let output = "tests/samples/output/png.to.webp";
     initialize(output);
     let params = CSParameters::new();
-    caesium::convert(
+    iodine::convert(
         String::from("tests/samples/uncompressed_드림캐쳐.png"),
         String::from(output),
         &params,
@@ -117,7 +117,7 @@ fn convert_png_to_tiff() {
     let output = "tests/samples/output/png.to.tiff";
     initialize(output);
     let params = CSParameters::new();
-    caesium::convert(
+    iodine::convert(
         String::from("tests/samples/uncompressed_드림캐쳐.png"),
         String::from(output),
         &params,
@@ -135,7 +135,7 @@ fn convert_webp_to_jpg() {
     initialize(output);
     let mut params = CSParameters::new();
     params.keep_metadata = true;
-    caesium::convert(
+    iodine::convert(
         String::from("tests/samples/uncompressed_家.webp"),
         String::from(output),
         &params,
@@ -156,7 +156,7 @@ fn convert_webp_to_png() {
     let output = "tests/samples/output/webp.to.png";
     initialize(output);
     let params = CSParameters::new();
-    caesium::convert(
+    iodine::convert(
         String::from("tests/samples/uncompressed_家.webp"),
         String::from(output),
         &params,
@@ -173,7 +173,7 @@ fn convert_webp_to_tiff() {
     let output = "tests/samples/output/webp.to.tiff";
     initialize(output);
     let params = CSParameters::new();
-    caesium::convert(
+    iodine::convert(
         String::from("tests/samples/uncompressed_家.webp"),
         String::from(output),
         &params,
@@ -190,7 +190,7 @@ fn convert_tiff_to_jpg() {
     let output = "tests/samples/output/tiff.to.jpg";
     initialize(output);
     let params = CSParameters::new();
-    caesium::convert(
+    iodine::convert(
         String::from("tests/samples/rgba8.tif"),
         String::from(output),
         &params,
@@ -207,7 +207,7 @@ fn convert_tiff_to_png() {
     let output = "tests/samples/output/tiff.to.png";
     initialize(output);
     let params = CSParameters::new();
-    caesium::convert(
+    iodine::convert(
         String::from("tests/samples/rgba8.tif"),
         String::from(output),
         &params,
@@ -224,7 +224,7 @@ fn convert_tiff_to_webp() {
     let output = "tests/samples/output/tiff.to.webp";
     initialize(output);
     let params = CSParameters::new();
-    caesium::convert(
+    iodine::convert(
         String::from("tests/samples/rgba8.tif"),
         String::from(output),
         &params,

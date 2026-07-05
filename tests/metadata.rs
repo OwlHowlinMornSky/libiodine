@@ -1,8 +1,8 @@
 use crate::cleanup::remove_compressed_test_file;
 use bytes::Bytes;
-use caesium::parameters::CSParameters;
 use img_parts::png::Png as PartsPng;
 use img_parts::{ImageEXIF, ImageICC};
+use iodine::parameters::CSParameters;
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
@@ -24,7 +24,7 @@ fn jpeg_compress_80_with_metadata() {
     let mut pars = CSParameters::new();
     pars.jpeg.quality = 80;
     pars.keep_metadata = true;
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_드림캐쳐.jpg"),
         String::from(output),
         &pars,
@@ -45,7 +45,7 @@ fn jpeg_optimize_with_metadata() {
     let mut pars = CSParameters::new();
     pars.jpeg.optimize = true;
     pars.keep_metadata = true;
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_드림캐쳐.jpg"),
         String::from(output),
         &pars,
@@ -68,7 +68,7 @@ fn jpeg_resize_optimize_with_metadata() {
     pars.keep_metadata = true;
     pars.width = 200;
     pars.height = 200;
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_드림캐쳐.jpg"),
         String::from(output),
         &pars,
@@ -89,7 +89,7 @@ fn jpeg_resize_optimize_with_metadata() {
 //     let mut pars = CSParameters::new();
 //     pars.webp.quality = 80;
 //     pars.keep_metadata = true;
-//     caesium::compress(
+//     iodine::compress(
 //         String::from("tests/samples/uncompressed_家.webp"),
 //         String::from(output),
 //         &pars,
@@ -111,7 +111,7 @@ fn png_lossy_with_metadata() {
     pars.png.quality = 80;
     pars.png.optimize = false;
     pars.keep_metadata = true;
-    caesium::compress(String::from("tests/samples/metadata.png"), String::from(output), &pars).unwrap();
+    iodine::compress(String::from("tests/samples/metadata.png"), String::from(output), &pars).unwrap();
     assert!(Path::new(output).exists());
     assert!(png_metadata_is_equal(
         Path::new("tests/samples/metadata.png"),
@@ -127,7 +127,7 @@ fn png_lossless_with_metadata() {
     let mut pars = CSParameters::new();
     pars.png.optimize = true;
     pars.keep_metadata = true;
-    caesium::compress(String::from("tests/samples/metadata.png"), String::from(output), &pars).unwrap();
+    iodine::compress(String::from("tests/samples/metadata.png"), String::from(output), &pars).unwrap();
     assert!(Path::new(output).exists());
     assert!(png_metadata_is_equal(
         Path::new("tests/samples/metadata.png"),

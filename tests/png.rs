@@ -1,5 +1,5 @@
 use crate::cleanup::remove_compressed_test_file;
-use caesium::parameters::CSParameters;
+use iodine::parameters::CSParameters;
 use std::{fs::File, sync::Once};
 
 mod cleanup;
@@ -16,7 +16,7 @@ pub fn initialize(file: &str) {
 fn standard_compress_png() {
     let output = "tests/samples/output/compressed.png";
     initialize(output);
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_드림캐쳐.png"),
         String::from(output),
         &CSParameters::new(),
@@ -34,7 +34,7 @@ fn standard_compress_png_with_optimize_flag() {
     initialize(output);
     let mut params = CSParameters::new();
     params.png.optimize = true;
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_드림캐쳐.png"),
         String::from(output),
         &params,
@@ -53,7 +53,7 @@ fn zopfli_compress_png() {
     let mut params = CSParameters::new();
     params.png.optimize = true;
     params.png.force_zopfli = true;
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_드림캐쳐.png"),
         String::from(output),
         &params,
@@ -72,7 +72,7 @@ fn downscale_standard_compress_png() {
     let mut params = CSParameters::new();
     params.width = 150;
     params.height = 150;
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_드림캐쳐.png"),
         String::from(output),
         &params,
@@ -92,7 +92,7 @@ fn downscale_standard_compress_png_with_optimize_flag() {
     params.width = 150;
     params.height = 150;
     params.png.optimize = true;
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_드림캐쳐.png"),
         String::from(output),
         &params,
@@ -114,7 +114,7 @@ fn downscale_zopfli_compress_png() {
     params.png.quality = 80;
     params.png.optimize = true;
     params.png.force_zopfli = true;
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_드림캐쳐.png"),
         String::from(output),
         &params,
@@ -134,7 +134,7 @@ fn downscale_to_size() {
     let mut pars = CSParameters::new();
     pars.width = 150;
     pars.height = 150;
-    caesium::compress_to_size(
+    iodine::compress_to_size(
         String::from("tests/samples/uncompressed_드림캐쳐.png"),
         String::from(output),
         &mut pars,

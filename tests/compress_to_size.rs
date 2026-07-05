@@ -1,5 +1,5 @@
 use crate::cleanup::remove_compressed_test_file;
-use caesium::parameters::CSParameters;
+use iodine::parameters::CSParameters;
 use std::fs::File;
 use std::sync::Once;
 
@@ -18,7 +18,7 @@ fn compress_to_1_byte() {
     let output = "tests/samples/output/compressed_1b.jpg";
     initialize(output);
     let mut pars = CSParameters::new();
-    caesium::compress_to_size(
+    iodine::compress_to_size(
         String::from("tests/samples/uncompressed_드림캐쳐.jpg"),
         String::from(output),
         &mut pars,
@@ -34,7 +34,7 @@ fn compress_to_1_byte_and_return() {
     let output = "tests/samples/output/compressed_1b_return.jpg";
     initialize(output);
     let mut pars = CSParameters::new();
-    caesium::compress_to_size(
+    iodine::compress_to_size(
         String::from("tests/samples/uncompressed_드림캐쳐.jpg"),
         String::from(output),
         &mut pars,
@@ -56,7 +56,7 @@ fn compress_to_10_mb() {
     let max_output_size = 10_000_000;
     initialize(output);
     let mut pars = CSParameters::new();
-    caesium::compress_to_size(
+    iodine::compress_to_size(
         String::from("tests/samples/uncompressed_드림캐쳐.jpg"),
         String::from(output),
         &mut pars,
@@ -82,7 +82,7 @@ fn compress_to_range() {
 
     while max_output_size < max_desired_size {
         let mut pars = CSParameters::new();
-        caesium::compress_to_size(
+        iodine::compress_to_size(
             String::from("tests/samples/uncompressed_드림캐쳐.jpg"),
             String::from(output),
             &mut pars,
@@ -108,7 +108,7 @@ fn compress_to_higher_size_and_resize() {
     let mut pars = CSParameters::new();
     pars.width = 800;
     pars.height = 600;
-    caesium::compress_to_size(
+    iodine::compress_to_size(
         String::from("tests/samples/uncompressed_드림캐쳐.jpg"),
         String::from(output),
         &mut pars,

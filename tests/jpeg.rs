@@ -1,7 +1,7 @@
 use crate::cleanup::remove_compressed_test_file;
-use caesium::parameters::CSParameters;
 use dssim::Val;
 use img_parts::ImageICC;
+use iodine::parameters::CSParameters;
 use std::{fs, fs::File, sync::Once};
 
 mod cleanup;
@@ -28,7 +28,7 @@ fn compress_100() {
     initialize(output);
     let mut pars = CSParameters::new();
     pars.jpeg.quality = 100;
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_드림캐쳐.jpg"),
         String::from(output),
         &pars,
@@ -47,7 +47,7 @@ fn compress_80() {
     initialize(output);
     let mut pars = CSParameters::new();
     pars.jpeg.quality = 80;
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_드림캐쳐.jpg"),
         String::from(output),
         &pars,
@@ -66,7 +66,7 @@ fn compress_50() {
     initialize(output);
     let mut pars = CSParameters::new();
     pars.jpeg.quality = 50;
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_드림캐쳐.jpg"),
         String::from(output),
         &pars,
@@ -85,7 +85,7 @@ fn compress_10() {
     initialize(output);
     let mut pars = CSParameters::new();
     pars.jpeg.quality = 10;
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_드림캐쳐.jpg"),
         String::from(output),
         &pars,
@@ -104,7 +104,7 @@ fn compress_corrupted_lossy() {
     initialize(output);
     let mut pars = CSParameters::new();
     pars.jpeg.quality = 50;
-    assert!(caesium::compress(String::from("tests/samples/corrupted.jpg"), String::from(output), &pars,).is_err())
+    assert!(iodine::compress(String::from("tests/samples/corrupted.jpg"), String::from(output), &pars,).is_err())
 }
 
 #[test]
@@ -113,7 +113,7 @@ fn optimize_jpeg() {
     initialize(output);
     let mut pars = CSParameters::new();
     pars.jpeg.optimize = true;
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_드림캐쳐.jpg"),
         String::from(output),
         &pars,
@@ -136,7 +136,7 @@ fn compress_corrupted_lossless() {
     initialize(output);
     let mut pars = CSParameters::new();
     pars.jpeg.optimize = true;
-    assert!(caesium::compress(String::from("tests/samples/corrupted.jpg"), String::from(output), &pars,).is_err());
+    assert!(iodine::compress(String::from("tests/samples/corrupted.jpg"), String::from(output), &pars,).is_err());
 }
 
 #[test]
@@ -147,7 +147,7 @@ fn downscale_to_size() {
     let mut pars = CSParameters::new();
     pars.width = 800;
     pars.height = 600;
-    caesium::compress_to_size(
+    iodine::compress_to_size(
         String::from("tests/samples/uncompressed_드림캐쳐.jpg"),
         String::from(output),
         &mut pars,
@@ -171,7 +171,7 @@ fn downscale_exact() {
     pars.jpeg.quality = 80;
     pars.width = 800;
     pars.height = 600;
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_드림캐쳐.jpg"),
         String::from(output),
         &pars,
@@ -192,7 +192,7 @@ fn downscale_exact_optimize() {
     pars.jpeg.optimize = true;
     pars.width = 800;
     pars.height = 600;
-    caesium::compress(
+    iodine::compress(
         String::from("tests/samples/uncompressed_드림캐쳐.jpg"),
         String::from(output),
         &pars,
@@ -220,7 +220,7 @@ fn preserve_icc() {
     assert!(input_iccp.is_some());
     let input_iccp = input_iccp.unwrap();
 
-    let output_buffer = caesium::compress_in_memory(in_file.clone(), &pars).unwrap(); //TODO too many clones
+    let output_buffer = iodine::compress_in_memory(in_file.clone(), &pars).unwrap(); //TODO too many clones
     let kind = infer::get(&output_buffer).unwrap();
     assert_eq!(kind.mime_type(), "image/jpeg");
 
@@ -234,7 +234,7 @@ fn preserve_icc() {
 
     // lossless
     pars.jpeg.optimize = true;
-    let output_buffer = caesium::compress_in_memory(in_file.clone(), &pars).unwrap(); //TODO too many clones
+    let output_buffer = iodine::compress_in_memory(in_file.clone(), &pars).unwrap(); //TODO too many clones
     let kind = infer::get(&output_buffer).unwrap();
     assert_eq!(kind.mime_type(), "image/jpeg");
 
@@ -249,7 +249,7 @@ fn preserve_icc() {
     // resize
     pars.jpeg.optimize = false;
     pars.width = 200;
-    let output_buffer = caesium::compress_in_memory(in_file.clone(), &pars).unwrap();
+    let output_buffer = iodine::compress_in_memory(in_file.clone(), &pars).unwrap();
     let kind = infer::get(&output_buffer).unwrap();
     assert_eq!(kind.mime_type(), "image/jpeg");
 
@@ -264,7 +264,7 @@ fn preserve_icc() {
 
     // strip
     pars.jpeg.preserve_icc = false;
-    let output_buffer = caesium::compress_in_memory(in_file.clone(), &pars).unwrap(); //TODO too many clones
+    let output_buffer = iodine::compress_in_memory(in_file.clone(), &pars).unwrap(); //TODO too many clones
     let kind = infer::get(&output_buffer).unwrap();
     assert_eq!(kind.mime_type(), "image/jpeg");
 
