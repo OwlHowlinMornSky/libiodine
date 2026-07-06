@@ -337,5 +337,5 @@ pub unsafe extern "C" fn iod_convert_in_memory(
 
     let parameters = c_set_parameters(params);
 
-    iod_return_result(output, convert_in_memory(input_vec, &parameters, format))
+    iod_return_result(output, convert_in_memory(input_vec, &parameters, format, true))
 }

@@ -317,7 +317,7 @@ pub fn convert(
         message: e.to_string(),
         code: 10410,
     })?;
-    let output_buffer = convert_in_memory(in_file, parameters, format).map_err(|e| CaesiumError {
+    let output_buffer = convert_in_memory(in_file, parameters, format, false).map_err(|e| CaesiumError {
         message: e.to_string(),
         code: 10411,
     })?;
@@ -350,9 +350,10 @@ pub fn convert_in_memory(
     in_file: Vec<u8>,
     parameters: &CSParameters,
     format: SupportedFileTypes,
+    compress_when_same_format: bool,
 ) -> Result<Vec<u8>, CaesiumError> {
     validate_parameters(parameters)?;
-    convert::convert_in_memory(in_file, format, parameters)
+    convert::convert_in_memory(in_file, format, parameters, compress_when_same_format)
 }
 
 fn validate_parameters(parameters: &CSParameters) -> error::Result<()> {
