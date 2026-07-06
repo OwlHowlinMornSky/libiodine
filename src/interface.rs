@@ -4,7 +4,8 @@ use std::os::raw::c_char;
 use crate::parameters::ChromaSubsampling;
 use crate::parameters::TiffCompression::{Deflate, Lzw, Packbits, Uncompressed};
 use crate::{
-    compress, compress_in_memory, compress_to_size, convert, error, CSParameters, SupportedFileTypes, TiffDeflateLevel,
+    compress, compress_in_memory, compress_to_size, compress_to_size_in_memory, convert, convert_in_memory, error,
+    CSParameters, SupportedFileTypes, TiffDeflateLevel,
 };
 
 #[repr(C)]
@@ -224,4 +225,117 @@ fn c_set_parameters(params: CCSParameters) -> CSParameters {
     };
 
     parameters
+}
+
+#[no_mangle]
+#[allow(clippy::missing_safety_doc)]
+pub unsafe extern "C" fn iod_free_buffer(byte_array: CByteArray) {
+    if !byte_array.data.is_null() {
+        drop(Box::from_raw(std::ptr::slice_from_raw_parts_mut(
+            byte_array.data,
+            byte_array.length,
+        )));
+    }
+}
+
+unsafe fn iod_return_result(output: *mut CByteArray, result: error::Result<Vec<u8>>) -> CCSResult {
+    match result {
+        Ok(compressed_data) => {
+            let boxed_slice: Box<[u8]> = compressed_data.into_boxed_slice();
+            let output_length = boxed_slice.len();
+            let output_data = Box::into_raw(boxed_slice) as *mut u8;
+
+            (*output).data = output_data;
+            (*output).length = output_length;
+
+            CCSResult {
+                success: true,
+                code: 0,
+                error_message: std::ptr::null(),
+            }
+        }
+        Err(e) => CCSResult {
+            success: false,
+            code: 0,
+            error_message: match CString::new(e.to_string()) {
+                Ok(str) => str.into_raw(),
+                Err(_) => std::ptr::null(),
+            },
+        },
+    }
+}
+
+#[no_mangle]
+#[allow(clippy::missing_safety_doc)]
+pub unsafe extern "C" fn iod_compress_in_memory(
+    input_data: *const u8,
+    input_length: usize,
+    params: CCSParameters,
+    output: *mut CByteArray,
+) -> CCSResult {
+    if input_data.is_null() || output.is_null() {
+        return CCSResult {
+            success: false,
+            code: 1001,
+            error_message: CString::new("Null pointer provided").unwrap().into_raw(),
+        };
+    }
+
+    let input_vec = std::slice::from_raw_parts(input_data, input_length).to_vec();
+
+    let parameters = c_set_parameters(params);
+
+    iod_return_result(output, compress_in_memory(input_vec, &parameters))
+}
+
+#[no_mangle]
+#[allow(clippy::missing_safety_doc)]
+pub unsafe extern "C" fn iod_compress_to_size_in_memory(
+    input_data: *const u8,
+    input_length: usize,
+    params: CCSParameters,
+    max_output_size: usize,
+    return_smallest: bool,
+    output: *mut CByteArray,
+) -> CCSResult {
+    if input_data.is_null() || output.is_null() {
+        return CCSResult {
+            success: false,
+            code: 1001,
+            error_message: CString::new("Null pointer provided").unwrap().into_raw(),
+        };
+    }
+
+    let input_vec = std::slice::from_raw_parts(input_data, input_length).to_vec();
+
+    let mut parameters = c_set_parameters(params);
+
+    iod_return_result(
+        output,
+        compress_to_size_in_memory(input_vec, &mut parameters, max_output_size, return_smallest),
+    )
+}
+
+#[no_mangle]
+#[allow(clippy::missing_safety_doc)]
+pub unsafe extern "C" fn iod_convert_in_memory(
+    input_data: *const u8,
+    input_length: usize,
+    format: SupportedFileTypes,
+    params: CCSParameters,
+    output: *mut CByteArray,
+) -> CCSResult {
+    if input_data.is_null() || output.is_null() {
+        return CCSResult {
+            success: false,
+            code: 1001,
+            error_message: CString::new("Null pointer provided").unwrap().into_raw(),
+        };
+    }
+
+    let input_vec = std::slice::from_raw_parts(input_data, input_length).to_vec();
+
+    let parameters = c_set_parameters(params);
+
+    iod_return_result(output, convert_in_memory(input_vec, &parameters, format))
 }
