@@ -9,7 +9,7 @@ use tiff::encoder::TiffEncoder;
 
 use crate::error::CaesiumError;
 use crate::parameters::TiffCompression;
-use crate::resize::resize_image_n;
+use crate::resize::resize_image;
 use crate::{CSParameters, TiffDeflateLevel};
 
 pub fn compress(input_path: String, output_path: String, parameters: &CSParameters) -> Result<(), CaesiumError> {
@@ -54,16 +54,12 @@ pub fn compress_in_memory(in_file: &Vec<u8>, parameters: &CSParameters) -> Resul
             return Err(CaesiumError {
                 message: e.to_string(),
                 code: 20504,
-            });
+            })
         }
     };
 
-    if parameters.width > 0
-        || parameters.height > 0
-        || parameters.exinfo.short_side_pixels > 0
-        || parameters.exinfo.long_size_pixels > 0
-    {
-        image = resize_image_n(image, parameters.width, parameters.height, parameters.exinfo);
+    if parameters.width > 0 || parameters.height > 0 {
+        image = resize_image(image, parameters.width, parameters.height);
     }
 
     let color_type = image.color();

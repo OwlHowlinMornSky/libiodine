@@ -12,6 +12,7 @@ pub fn convert_in_memory(
     in_file: Vec<u8>,
     format: SupportedFileTypes,
     parameters: &CSParameters,
+    compress_when_same_format: bool,
 ) -> Result<Vec<u8>, CaesiumError> {
     let mut iccp = None;
     let mut exif = None;
@@ -20,10 +21,14 @@ pub fn convert_in_memory(
     let original_file_type = get_filetype_from_memory(&in_file);
 
     if original_file_type == format {
-        return Err(CaesiumError {
-            message: "Cannot convert to the same format".into(),
-            code: 10407,
-        });
+        if !compress_when_same_format {
+            return Err(CaesiumError {
+                message: "Cannot convert to the same format".into(),
+                code: 10407,
+            });
+        } else {
+            return compress_in_memory(in_file, parameters);
+        }
     }
 
     let i = in_file.as_slice();

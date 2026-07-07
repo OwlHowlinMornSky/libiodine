@@ -9,7 +9,7 @@ use img_parts::{DynImage, ImageEXIF, ImageICC};
 use webp::{AnimDecoder, AnimEncoder, AnimFrame, WebPConfig};
 
 use crate::error::CaesiumError;
-use crate::resize::resize_image_n;
+use crate::resize::resize_image;
 use crate::CSParameters;
 
 pub fn compress(input_path: String, output_path: String, parameters: &CSParameters) -> Result<(), CaesiumError> {
@@ -51,10 +51,7 @@ pub fn compress_in_memory(in_file: &[u8], parameters: &CSParameters) -> Result<V
             .map_or((None, None), |dyn_img| (dyn_img.icc_profile(), dyn_img.exif()));
     }
 
-    let must_resize = parameters.width > 0
-        || parameters.height > 0
-        || parameters.exinfo.short_side_pixels > 0
-        || parameters.exinfo.long_size_pixels > 0;
+    let must_resize = parameters.width > 0 || parameters.height > 0;
 
     let anim_decoder = AnimDecoder::new(in_file);
     let frames = anim_decoder.decode().map_err(|e| CaesiumError {
@@ -84,7 +81,7 @@ pub fn compress_in_memory(in_file: &[u8], parameters: &CSParameters) -> Result<V
         for (i, f) in frames.into_iter().enumerate() {
             if must_resize {
                 let mut dyn_image = to_dynamic_image(f);
-                dyn_image = resize_image_n(dyn_image, parameters.width, parameters.height, parameters.exinfo);
+                dyn_image = resize_image(dyn_image, parameters.width, parameters.height);
                 if i == 0 {
                     width = dyn_image.width();
                     height = dyn_image.height();
@@ -134,7 +131,7 @@ pub fn compress_in_memory(in_file: &[u8], parameters: &CSParameters) -> Result<V
         };
         let mut input_image = (&first_frame).into();
         if must_resize {
-            input_image = resize_image_n(input_image, parameters.width, parameters.height, parameters.exinfo);
+            input_image = resize_image(input_image, parameters.width, parameters.height);
         }
 
         let encoder = match webp::Encoder::from_image(&input_image) {
@@ -143,7 +140,7 @@ pub fn compress_in_memory(in_file: &[u8], parameters: &CSParameters) -> Result<V
                 return Err(CaesiumError {
                     message: e.to_string(),
                     code: 20305,
-                });
+                })
             }
         };
 
